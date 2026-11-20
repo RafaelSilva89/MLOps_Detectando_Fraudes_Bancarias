@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="1200" height="640" role="img" aria-labelledby="re-t re-d" font-family="Segoe UI, IBM Plex Sans, Arial, sans-serif">
+<title id="re-t">O que se reaproveita e o que muda de um projeto para outro</title>
+<desc id="re-d">À esquerda, o esqueleto reutilizável de MLOps: estrutura de pastas, configuração central, molde dos estágios, validação, rastreamento no MLflow, registro, classe de inferência, app e Docker, testes com base sintética, dvc.yaml e DAG do Airflow. À direita, as peças específicas de cada problema: esquema de colunas, regras de validação, features, algoritmos e espaços de busca, métrica principal, regra de decisão, variáveis monitoradas e SLA. As setas mostram em que arquivo do esqueleto cada peça específica é encaixada.</desc>
+<defs><marker id="re-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#CA5010"/></marker></defs>
+<rect x="0" y="0" width="1200" height="640" fill="#FFFFFF"/>
+<text x="600" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#243A5E">O que se reaproveita × o que muda de um projeto para outro</text>
+<text x="600" y="56" text-anchor="middle" font-size="13" fill="#505050">O esqueleto de MLOps fica igual; as peças do problema são encaixadas em pontos conhecidos</text>
+
+<rect x="30" y="78" width="560" height="532" rx="8" fill="#EEF5FC" stroke="#0078D4" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="50" y="106" font-size="16" font-weight="700" fill="#0078D4">REUTILIZÁVEL · copie e ajuste nomes</text>
+<rect x="640" y="78" width="530" height="532" rx="8" fill="#FDF6F2" stroke="#CA5010" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="660" y="106" font-size="16" font-weight="700" fill="#CA5010">ESPECÍFICO · reescreva para o novo problema</text>
+
+<g font-size="12.5" fill="#3B3B3B">
+  <!-- reutilizáveis: y de 122 em 48 -->
+  <rect x="50" y="122" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="140" font-weight="700" fill="#243A5E">Estrutura de pastas e pyproject.toml</text><text x="64" y="155" font-size="11.5">data/ em camadas · src/&lt;etapa&gt;/ · models/ · artifacts/ · metrics/ · tests/</text>
+  <rect x="50" y="170" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="188" font-weight="700" fill="#243A5E">src/config.py · utils.py · __init__.py (logging)</text><text x="64" y="203" font-size="11.5">caminhos, leitura do params.yaml, JSON/CSV, log em logs/pipeline.log</text>
+  <rect x="50" y="218" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="236" font-weight="700" fill="#243A5E">Molde de cada estágio: função pura + main()</text><text x="64" y="251" font-size="11.5">lê do disco o que o anterior gravou, grava o que o próximo lê</text>
+  <rect x="50" y="266" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="284" font-weight="700" fill="#243A5E">validate_dataframe (a mecânica) e o split estratificado</text><text x="64" y="299" font-size="11.5">relatório de checagens, bloqueante x alerta, reutilizado na inferência</text>
+  <rect x="50" y="314" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="332" font-weight="700" fill="#243A5E">train_model: comparar → CV → busca → retreino final</text><text x="64" y="347" font-size="11.5">o fluxo e o registro no MLflow não dependem do algoritmo</text>
+  <rect x="50" y="362" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="380" font-weight="700" fill="#243A5E">tracking.py · register_model.py (MLflow + alias)</text><text x="64" y="395" font-size="11.5">uma run por pipeline, reaberta pelos estágios seguintes</text>
+  <rect x="50" y="410" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="428" font-weight="700" fill="#243A5E">Classe de inferência + Flask + Dockerfile</text><text x="64" y="443" font-size="11.5">validar → features → prever → decidir; local ou registry</text>
+  <rect x="50" y="458" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="476" font-weight="700" fill="#243A5E">Testes: base sintética + pipeline em pasta temporária</text><text x="64" y="491" font-size="11.5">FRAUD_PROJECT_ROOT/tmp_path · MLflow em SQLite temporário · CI</text>
+  <rect x="50" y="506" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="524" font-weight="700" fill="#243A5E">dvc.yaml · DAG do Airflow · docker-compose</text><text x="64" y="539" font-size="11.5">a DAG lê os estágios do dvc.yaml: não muda quando o projeto muda</text>
+  <rect x="50" y="554" width="520" height="40" rx="6" fill="#FFFFFF" stroke="#0078D4"/><text x="64" y="572" font-weight="700" fill="#243A5E">Monitoramento: PSI, K-S, desempenho por lote × SLA</text><text x="64" y="587" font-size="11.5">funções de drift.py servem para qualquer variável numérica</text>
+
+  <!-- específicos -->
+  <rect x="660" y="122" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="140" font-weight="700" fill="#8A3A0A">Esquema: colunas, alvo, ID</text><text x="674" y="155" font-size="11.5">COLUNAS_BRUTAS, ALVO, COLUNAS_MODELO (fraude: 28 PCA + valor + hora)</text>
+  <rect x="660" y="266" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="284" font-weight="700" fill="#8A3A0A">Regras de qualidade e de limpeza</text><text x="674" y="299" font-size="11.5">faixas válidas, duplicatas, tipo de split (aleatório, temporal, por grupo)</text>
+  <rect x="660" y="218" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="236" font-weight="700" fill="#8A3A0A">Features</text><text x="674" y="251" font-size="11.5">build_features (fraude: hora_do_dia; remover Timestamp)</text>
+  <rect x="660" y="314" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="332" font-weight="700" fill="#8A3A0A">Algoritmos, balanceamento e espaços de busca</text><text x="674" y="347" font-size="11.5">models.py (fraude: 4 classificadores, peso da classe, Random Search)</text>
+  <rect x="660" y="362" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="380" font-weight="700" fill="#8A3A0A">Métrica principal e regra de decisão</text><text x="674" y="395" font-size="11.5">fraude: PR-AUC + limiar de custo em R$; regressão: MAE/RMSE, sem limiar</text>
+  <rect x="660" y="410" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="428" font-weight="700" fill="#8A3A0A">Contrato de entrada e saída da API</text><text x="674" y="443" font-size="11.5">fraude: CSV bruto → probabilidade + "revisar/liberar"</text>
+  <rect x="660" y="458" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="476" font-weight="700" fill="#8A3A0A">Base sintética dos testes</text><text x="674" y="491" font-size="11.5">o mesmo esquema do problema, com um sinal simples de aprender</text>
+  <rect x="660" y="554" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="572" font-weight="700" fill="#8A3A0A">Variáveis monitoradas, SLA e plano de retreino</text><text x="674" y="587" font-size="11.5">quais variáveis, que métrica mínima, a cada quanto tempo</text>
+  <rect x="660" y="170" width="490" height="40" rx="6" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="188" font-weight="700" fill="#8A3A0A">params.yaml (os valores)</text><text x="674" y="203" font-size="11.5">semente, frações do split, custos, n_iter, bootstrap, SLA</text>
+</g>
+<g stroke="#CA5010" stroke-width="1.8" fill="none">
+  <line x1="658" y1="142" x2="574" y2="190" marker-end="url(#re-a)"/>
+  <line x1="658" y1="190" x2="574" y2="190" marker-end="url(#re-a)"/>
+  <line x1="658" y1="238" x2="574" y2="238" marker-end="url(#re-a)"/>
+  <line x1="658" y1="286" x2="574" y2="286" marker-end="url(#re-a)"/>
+  <line x1="658" y1="334" x2="574" y2="334" marker-end="url(#re-a)"/>
+  <line x1="658" y1="382" x2="574" y2="334" marker-end="url(#re-a)"/>
+  <line x1="658" y1="430" x2="574" y2="430" marker-end="url(#re-a)"/>
+  <line x1="658" y1="478" x2="574" y2="478" marker-end="url(#re-a)"/>
+  <line x1="658" y1="574" x2="574" y2="574" marker-end="url(#re-a)"/>
+</g>
+<text x="600" y="630" text-anchor="middle" font-size="12" fill="#505050">Seta = "a peça específica é encaixada neste arquivo do esqueleto". Trocar o problema = reescrever a coluna da direita; a da esquerda continua igual.</text>
+</svg>

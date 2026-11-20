@@ -16,6 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends docker.io libgo
 RUN python -m venv /opt/project-venv && chown -R airflow: /opt/project-venv
 
 COPY --chown=airflow:root . /home/airflow/fraud_detection
+# Pastas copiadas do Windows/OneDrive podem chegar como somente leitura (dr-xr-xr-x): sem escrita,
+# os estágios não gravam data/ nem models/, e o DVC não consegue criar o cache.
+RUN chmod -R u+w /home/airflow/fraud_detection
 USER airflow
 WORKDIR /home/airflow/fraud_detection
 

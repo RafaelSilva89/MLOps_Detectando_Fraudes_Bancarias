@@ -28,6 +28,10 @@ from airflow.operators.bash import BashOperator
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_PYTHON = os.getenv("PROJECT_PYTHON", "python")
+# Os estágios do dvc.yaml chamam "python -m ...". Para esse "python" ser o do projeto (com scikit-learn,
+# XGBoost...) e não o do Airflow, a pasta do ambiente do projeto vai na frente do PATH em cada tarefa.
+PROJECT_BIN = str(Path(PROJECT_PYTHON).parent) if os.sep in PROJECT_PYTHON else ""
+PREFIXO = f'export PATH="{PROJECT_BIN}:$PATH" && ' if PROJECT_BIN else ""
 
 
 def get_dvc_stages() -> list[str]:
@@ -48,13 +52,13 @@ with DAG(
     tags=["mlops", "fraude"],
 ) as dag:
     dvc_tasks = [
-        BashOperator(task_id=f"dvc_{stage}", cwd=str(PROJECT_ROOT), bash_command=f"{PROJECT_PYTHON} -m dvc repro {stage}")
+        BashOperator(task_id=f"dvc_{stage}", cwd=str(PROJECT_ROOT), bash_command=f"{PREFIXO}{PROJECT_PYTHON} -m dvc repro {stage}")
         for stage in get_dvc_stages()
     ]
 
     register_model = BashOperator(
         task_id="register_model", cwd=str(PROJECT_ROOT),
-        bash_command=f"{PROJECT_PYTHON} -m src.model_registry.register_model",
+        bash_command=f"{PREFIXO}{PROJECT_PYTHON} -m src.model_registry.register_model",
     )
 
     build_app_image = BashOperator(

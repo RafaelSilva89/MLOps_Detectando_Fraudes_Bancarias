@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-labelledby="or-t or-d" font-family="Segoe UI, IBM Plex Sans, Arial, sans-serif">
+<title id="or-t">Três camadas de execução: Airflow, DVC e os módulos de src</title>
+<desc id="or-d">O Airflow decide quando rodar e em que ordem, com novas tentativas e histórico. Cada tarefa dele chama o DVC com dvc repro e o nome do estágio. O DVC decide se o estágio precisa rodar, comparando o hash das dependências e dos parâmetros com o dvc.lock, e executa o comando do estágio, que é um módulo de src. Os módulos fazem o trabalho e gravam saídas em data, models, artifacts e metrics; os estágios de treino, decisão, avaliação e monitoramento registram no MLflow. Depois dos estágios, o Airflow registra o modelo e monta a imagem do app.</desc>
+<defs>
+  <marker id="or-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5A6B70"/></marker>
+  <marker id="or-o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#CA5010"/></marker>
+  <marker id="or-p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8661C5"/></marker>
+</defs>
+<rect x="0" y="0" width="1200" height="600" fill="#FFFFFF"/>
+<text x="600" y="34" text-anchor="middle" font-size="20" font-weight="700" fill="#243A5E">Três camadas de execução: QUANDO (Airflow) → SE e COMO (DVC) → O QUÊ (src/)</text>
+<text x="600" y="56" text-anchor="middle" font-size="13" fill="#505050">Cada camada tem uma responsabilidade; trocar uma não obriga a mexer nas outras</text>
+
+<!-- camada Airflow -->
+<rect x="30" y="76" width="1140" height="120" rx="8" fill="#FDF6F2" stroke="#CA5010" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="48" y="100" font-size="15" font-weight="700" fill="#CA5010">AIRFLOW · dags/ml_pipeline_dag.py · @monthly · retries=1</text>
+<g font-size="11" font-family="Consolas, monospace" fill="#243A5E">
+  <rect x="48" y="116" width="100" height="26" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="56" y="133">dvc_load_data</text>
+  <rect x="160" y="116" width="118" height="26" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="168" y="133">dvc_validate_data</text>
+  <rect x="290" y="116" width="128" height="26" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="298" y="133">dvc_preprocess_data</text>
+  <rect x="430" y="116" width="140" height="26" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="438" y="133">dvc_engineer_features</text>
+  <rect x="582" y="116" width="72" height="26" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="590" y="133">dvc_train</text>
+  <rect x="666" y="116" width="128" height="26" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="674" y="133">dvc_decision_policy</text>
+  <rect x="806" y="116" width="86" height="26" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="814" y="133">dvc_evaluate</text>
+  <rect x="904" y="116" width="82" height="26" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="912" y="133">dvc_monitor</text>
+  <rect x="998" y="116" width="156" height="26" rx="4" fill="#F3EDFB" stroke="#8661C5"/><text x="1006" y="133">register_model → build</text>
+</g>
+<text x="48" y="174" font-size="12" fill="#505050">Gera uma tarefa por estágio lendo o dvc.yaml. Cada tarefa roda <tspan font-family="Consolas, monospace" fill="#8A3A0A">python -m dvc repro &lt;estágio&gt;</tspan> num ambiente Python separado do Airflow (sem conflito de versões).</text>
+<text x="48" y="190" font-size="12" fill="#505050">Responde: quando rodar · em que ordem · o que fazer se falhar · histórico de execuções na interface web (localhost:8080).</text>
+
+<!-- camada DVC -->
+<rect x="30" y="226" width="1140" height="150" rx="8" fill="#EEF5FC" stroke="#0078D4" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="48" y="250" font-size="15" font-weight="700" fill="#0078D4">DVC · dvc.yaml + dvc.lock + params.yaml</text>
+<rect x="48" y="264" width="340" height="96" rx="6" fill="#FFFFFF" stroke="#0078D4"/>
+<text x="62" y="284" font-size="12.5" font-weight="700" fill="#243A5E">dvc.yaml (o que cada estágio precisa)</text>
+<text x="62" y="304" font-size="11.5" fill="#3B3B3B" font-family="Consolas, monospace">cmd: python -m src.&lt;etapa&gt;.&lt;modulo&gt;</text>
+<text x="62" y="320" font-size="11.5" fill="#3B3B3B" font-family="Consolas, monospace">deps / params / outs / metrics</text>
+<text x="62" y="344" font-size="11.5" fill="#505050">o grafo (DAG) sai das deps e outs</text>
+<rect x="420" y="264" width="340" height="96" rx="6" fill="#FFFFFF" stroke="#0078D4"/>
+<text x="434" y="284" font-size="12.5" font-weight="700" fill="#243A5E">A decisão: rodar ou pular?</text>
+<text x="434" y="304" font-size="11.5" fill="#3B3B3B">hash de código + dados + params</text>
+<text x="434" y="320" font-size="11.5" fill="#3B3B3B">igual ao do dvc.lock → "didn't change, skipping"</text>
+<text x="434" y="344" font-size="11.5" fill="#3B3B3B">diferente → roda o estágio e os seguintes</text>
+<rect x="792" y="264" width="360" height="96" rx="6" fill="#FFFFFF" stroke="#0078D4"/>
+<text x="806" y="284" font-size="12.5" font-weight="700" fill="#243A5E">Depois de rodar</text>
+<text x="806" y="304" font-size="11.5" fill="#3B3B3B">outs vão para o cache (.dvc/cache)</text>
+<text x="806" y="320" font-size="11.5" fill="#3B3B3B">dvc.lock recebe os hashes novos (Git)</text>
+<text x="806" y="344" font-size="11.5" fill="#3B3B3B">metrics/*.json ficam no Git (cache: false)</text>
+<line x1="388" y1="312" x2="416" y2="312" stroke="#0078D4" stroke-width="2" marker-end="url(#or-a)"/>
+<line x1="760" y1="312" x2="788" y2="312" stroke="#0078D4" stroke-width="2" marker-end="url(#or-a)"/>
+
+<!-- camada src -->
+<rect x="30" y="406" width="820" height="120" rx="8" fill="#F4FAF4" stroke="#107C10" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="48" y="430" font-size="15" font-weight="700" fill="#107C10">src/ · os módulos fazem o trabalho</text>
+<text x="48" y="452" font-size="12" fill="#3B3B3B">função pura (testável) + <tspan font-family="Consolas, monospace">main()</tspan> (lê params e entradas, grava saídas) · logging em <tspan font-family="Consolas, monospace">logs/pipeline.log</tspan></text>
+<text x="48" y="474" font-size="12" fill="#3B3B3B">saídas: <tspan font-family="Consolas, monospace" fill="#0A6A72">data/raw · data/preprocessed · data/processed · models/ · artifacts/ · metrics/</tspan></text>
+<text x="48" y="496" font-size="12" fill="#3B3B3B">dá para rodar um estágio sozinho: <tspan font-family="Consolas, monospace" fill="#0A6A72">python -m src.data_preprocessing.preprocess_data</tspan></text>
+
+<rect x="880" y="406" width="290" height="120" rx="8" fill="#F7F4FC" stroke="#8661C5" stroke-width="2"/>
+<text x="896" y="430" font-size="15" font-weight="700" fill="#8661C5">MLflow (fora do DVC)</text>
+<text x="896" y="452" font-size="12" fill="#3B3B3B">train abre a run; decision_policy,</text>
+<text x="896" y="470" font-size="12" fill="#3B3B3B">evaluate e monitor a reabrem</text>
+<text x="896" y="492" font-size="12" fill="#3B3B3B">register_model → Model Registry</text>
+<text x="896" y="510" font-size="12" fill="#3B3B3B">alias @champion</text>
+
+<line x1="600" y1="196" x2="600" y2="222" stroke="#CA5010" stroke-width="2.2" marker-end="url(#or-o)"/>
+<text x="610" y="214" font-size="11.5" fill="#CA5010" font-weight="700">chama dvc repro &lt;estágio&gt;</text>
+<line x1="440" y1="376" x2="440" y2="402" stroke="#0078D4" stroke-width="2.2" marker-end="url(#or-a)"/>
+<text x="450" y="394" font-size="11.5" fill="#0078D4" font-weight="700">executa o cmd do estágio</text>
+<line x1="850" y1="466" x2="876" y2="466" stroke="#8661C5" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#or-p)"/>
+<path d="M 1076 142 C 1100 300, 1100 380, 1040 402" fill="none" stroke="#8661C5" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#or-p)"/>
+
+<text x="30" y="560" font-size="12.5" fill="#3B3B3B"><tspan font-weight="700" fill="#243A5E">Sem Airflow</tspan> o projeto funciona igual: <tspan font-family="Consolas, monospace">python -m dvc repro</tspan> roda tudo na ordem. O Airflow acrescenta agendamento, novas tentativas e histórico,</text>
+<text x="30" y="580" font-size="12.5" fill="#3B3B3B">e é por isso que entra depois: primeiro o pipeline precisa rodar e se reproduzir sozinho (fase 13), só então ele é agendado.</text>
+</svg>

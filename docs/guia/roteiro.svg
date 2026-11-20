@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 840" width="1440" height="840" role="img" aria-labelledby="rot-t rot-d" font-family="Segoe UI, IBM Plex Sans, Arial, sans-serif" class="rot">
+<title id="rot-t">Roteiro MLOps em 17 fases</title>
+<desc id="rot-d">As 17 fases para transformar um projeto de Ciência de Dados em um projeto com MLOps, agrupadas em 5 partes: diagnóstico e planejamento, dados, modelo, produção e fechamento. Cada caixa mostra a fase, as pastas ou arquivos que ela cria e as ferramentas. As setas indicam a ordem de execução. A cor de cada caixa indica o estado: já feito (verde, com selo), esta fase (laranja), próxima fase (azul-petróleo tracejado) ou depois (cinza claro).</desc>
+<style>
+  .rot .bx rect.card { fill: #FFFFFF; stroke: #B8C4C8; stroke-width: 1.4; }
+  .rot .bx .n { fill: #243A5E; font-weight: 700; font-size: 13px; }
+  .rot .bx .tt { fill: #0E1619; font-weight: 600; font-size: 14px; }
+  .rot .bx .pa { fill: #0A6A72; font-size: 11.5px; font-family: Consolas, "IBM Plex Mono", monospace; }
+  .rot .bx .fe { fill: #5A6B70; font-size: 11.5px; }
+  .rot .bx .ok { display: none; }
+  .rot .bx.d-done rect.card { fill: #EAF6EF; stroke: #2E9E5B; stroke-width: 2; }
+  .rot .bx.d-done .ok { display: inline; }
+  .rot .bx.d-now rect.card { fill: #FFF1DE; stroke: #FF8A00; stroke-width: 4; }
+  .rot .bx.d-now .tt, .rot .bx.d-now .n { fill: #B45309; }
+  .rot .bx.d-next rect.card { fill: #E6F4F5; stroke: #0A8A94; stroke-width: 3; stroke-dasharray: 8 5; }
+  .rot .bx.d-next .tt, .rot .bx.d-next .n { fill: #0A6A72; }
+  .rot .bx.d-todo { opacity: .42; }
+  .rot .lane { fill: #F3F6F7; stroke: #D3DBDE; }
+  .rot .ln1 { fill: #243A5E; font-weight: 700; font-size: 13px; letter-spacing: .06em; }
+  .rot .ln2 { fill: #0E1619; font-weight: 600; font-size: 15px; }
+  .rot .seta { stroke: #5A6B70; stroke-width: 2; fill: none; }
+</style>
+<defs><marker id="rot-seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5A6B70"/></marker></defs>
+<rect x="0" y="0" width="1440" height="840" fill="#FFFFFF"/>
+<text x="720.0" y="34" text-anchor="middle" font-size="21" font-weight="700" fill="#243A5E">Roteiro MLOps: do notebook à operação em 17 fases</text>
+<text x="720.0" y="58" text-anchor="middle" font-size="13.5" fill="#505050">Cada fase cria pastas e arquivos que a próxima usa · as setas mostram a ordem · a cor mostra o estado</text>
+<rect class="lane" x="16" y="92" width="1408" height="120" rx="8"/>
+<text class="ln1" x="32" y="136">PARTE 1</text>
+<text class="ln2" x="32" y="158">Diagnóstico e</text>
+<text class="ln2" x="32" y="177">planejamento</text>
+<g class="bx" data-k="f1">
+  <rect class="card" x="214" y="106" width="284" height="92" rx="9"/>
+  <text class="n" x="228" y="132">F1</text>
+  <text class="tt" x="252" y="132">Diagnóstico do problema</text>
+  <text class="pa" x="228" y="158">README.md (negócio)</text>
+  <text class="fe" x="228" y="180">alvo · métrica · custo do erro</text>
+  <g class="ok" transform="translate(494,110)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<g class="bx" data-k="f2">
+  <rect class="card" x="522" y="106" width="284" height="92" rx="9"/>
+  <text class="n" x="536" y="132">F2</text>
+  <text class="tt" x="560" y="132">Análise do notebook</text>
+  <text class="pa" x="536" y="158">notebooks/README.md</text>
+  <text class="fe" x="536" y="180">decisões → código</text>
+  <g class="ok" transform="translate(802,110)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="500" y1="152.0" x2="519" y2="152.0" marker-end="url(#rot-seta)"/>
+<g class="bx" data-k="f3">
+  <rect class="card" x="830" y="106" width="284" height="92" rx="9"/>
+  <text class="n" x="844" y="132">F3</text>
+  <text class="tt" x="868" y="132">Planejamento</text>
+  <text class="pa" x="844" y="158">docs/arquitetura.svg</text>
+  <text class="fe" x="844" y="180">estágios · ferramentas</text>
+  <g class="ok" transform="translate(1110,110)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="808" y1="152.0" x2="827" y2="152.0" marker-end="url(#rot-seta)"/>
+<g class="bx" data-k="f4">
+  <rect class="card" x="1138" y="106" width="284" height="92" rx="9"/>
+  <text class="n" x="1152" y="132">F4</text>
+  <text class="tt" x="1176" y="132">Estrutura e ambiente</text>
+  <text class="pa" x="1152" y="158">src/ · params.yaml · pyproject</text>
+  <text class="fe" x="1152" y="180">config.py · logging · Git</text>
+  <g class="ok" transform="translate(1418,110)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="1116" y1="152.0" x2="1135" y2="152.0" marker-end="url(#rot-seta)"/>
+<rect class="lane" x="16" y="226" width="1408" height="120" rx="8"/>
+<text class="ln1" x="32" y="270">PARTE 2</text>
+<text class="ln2" x="32" y="292">Dados</text>
+<g class="bx" data-k="f5">
+  <rect class="card" x="214" y="240" width="284" height="92" rx="9"/>
+  <text class="n" x="228" y="266">F5</text>
+  <text class="tt" x="252" y="266">Dados versionados</text>
+  <text class="pa" x="228" y="292">data/external · data/raw</text>
+  <text class="fe" x="228" y="314">DVC · load_data.py</text>
+  <g class="ok" transform="translate(494,244)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<g class="bx" data-k="f6">
+  <rect class="card" x="522" y="240" width="284" height="92" rx="9"/>
+  <text class="n" x="536" y="266">F6</text>
+  <text class="tt" x="560" y="266">Validação e pré-processamento</text>
+  <text class="pa" x="536" y="292">data/preprocessed</text>
+  <text class="fe" x="536" y="314">validate_data · preprocess_data</text>
+  <g class="ok" transform="translate(802,244)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="500" y1="286.0" x2="519" y2="286.0" marker-end="url(#rot-seta)"/>
+<g class="bx" data-k="f7">
+  <rect class="card" x="830" y="240" width="284" height="92" rx="9"/>
+  <text class="n" x="844" y="266">F7</text>
+  <text class="tt" x="868" y="266">Engenharia de atributos</text>
+  <text class="pa" x="844" y="292">data/processed</text>
+  <text class="fe" x="844" y="314">engineer_features.py</text>
+  <g class="ok" transform="translate(1110,244)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="808" y1="286.0" x2="827" y2="286.0" marker-end="url(#rot-seta)"/>
+<rect class="lane" x="16" y="360" width="1408" height="120" rx="8"/>
+<text class="ln1" x="32" y="404">PARTE 3</text>
+<text class="ln2" x="32" y="426">Modelo</text>
+<g class="bx" data-k="f8">
+  <rect class="card" x="214" y="374" width="284" height="92" rx="9"/>
+  <text class="n" x="228" y="400">F8</text>
+  <text class="tt" x="252" y="400">Treinamento</text>
+  <text class="pa" x="228" y="426">models/*.joblib</text>
+  <text class="fe" x="228" y="448">models.py · train_model.py</text>
+  <g class="ok" transform="translate(494,378)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<g class="bx" data-k="f9">
+  <rect class="card" x="522" y="374" width="284" height="92" rx="9"/>
+  <text class="n" x="536" y="400">F9</text>
+  <text class="tt" x="560" y="400">Avaliação</text>
+  <text class="pa" x="536" y="426">metrics/ · model_card.json</text>
+  <text class="fe" x="536" y="448">decision_policy · evaluate</text>
+  <g class="ok" transform="translate(802,378)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="500" y1="420.0" x2="519" y2="420.0" marker-end="url(#rot-seta)"/>
+<g class="bx" data-k="f10">
+  <rect class="card" x="830" y="374" width="284" height="92" rx="9"/>
+  <text class="n" x="844" y="400">F10</text>
+  <text class="tt" x="876" y="400">Rastreamento</text>
+  <text class="pa" x="844" y="426">mlflow.db · mlruns/</text>
+  <text class="fe" x="844" y="448">MLflow · tracking.py</text>
+  <g class="ok" transform="translate(1110,378)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="808" y1="420.0" x2="827" y2="420.0" marker-end="url(#rot-seta)"/>
+<g class="bx" data-k="f11">
+  <rect class="card" x="1138" y="374" width="284" height="92" rx="9"/>
+  <text class="n" x="1152" y="400">F11</text>
+  <text class="tt" x="1184" y="400">Registro de modelos</text>
+  <text class="pa" x="1152" y="426">Registry: @champion</text>
+  <text class="fe" x="1152" y="448">register_model.py</text>
+  <g class="ok" transform="translate(1418,378)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="1116" y1="420.0" x2="1135" y2="420.0" marker-end="url(#rot-seta)"/>
+<rect class="lane" x="16" y="494" width="1408" height="120" rx="8"/>
+<text class="ln1" x="32" y="538">PARTE 4</text>
+<text class="ln2" x="32" y="560">Produção</text>
+<g class="bx" data-k="f12">
+  <rect class="card" x="214" y="508" width="284" height="92" rx="9"/>
+  <text class="n" x="228" y="534">F12</text>
+  <text class="tt" x="260" y="534">Inferência</text>
+  <text class="pa" x="228" y="560">src/inference · app/</text>
+  <text class="fe" x="228" y="582">predict.py · Flask · Docker</text>
+  <g class="ok" transform="translate(494,512)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<g class="bx" data-k="f13">
+  <rect class="card" x="522" y="508" width="284" height="92" rx="9"/>
+  <text class="n" x="536" y="534">F13</text>
+  <text class="tt" x="568" y="534">Orquestração</text>
+  <text class="pa" x="536" y="560">dvc.yaml · dags/</text>
+  <text class="fe" x="536" y="582">dvc repro · Airflow</text>
+  <g class="ok" transform="translate(802,512)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="500" y1="554.0" x2="519" y2="554.0" marker-end="url(#rot-seta)"/>
+<g class="bx" data-k="f14">
+  <rect class="card" x="830" y="508" width="284" height="92" rx="9"/>
+  <text class="n" x="844" y="534">F14</text>
+  <text class="tt" x="876" y="534">Testes</text>
+  <text class="pa" x="844" y="560">tests/unit · tests/integration</text>
+  <text class="fe" x="844" y="582">pytest · CI</text>
+  <g class="ok" transform="translate(1110,512)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="808" y1="554.0" x2="827" y2="554.0" marker-end="url(#rot-seta)"/>
+<g class="bx" data-k="f15">
+  <rect class="card" x="1138" y="508" width="284" height="92" rx="9"/>
+  <text class="n" x="1152" y="534">F15</text>
+  <text class="tt" x="1184" y="534">Logging e monitoramento</text>
+  <text class="pa" x="1152" y="560">logs/ · monitoring.json</text>
+  <text class="fe" x="1152" y="582">PSI · K-S · SLA</text>
+  <g class="ok" transform="translate(1418,512)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="1116" y1="554.0" x2="1135" y2="554.0" marker-end="url(#rot-seta)"/>
+<rect class="lane" x="16" y="628" width="1408" height="120" rx="8"/>
+<text class="ln1" x="32" y="672">PARTE 5</text>
+<text class="ln2" x="32" y="694">Fechamento</text>
+<g class="bx" data-k="f16">
+  <rect class="card" x="214" y="642" width="284" height="92" rx="9"/>
+  <text class="n" x="228" y="668">F16</text>
+  <text class="tt" x="260" y="668">Documentação</text>
+  <text class="pa" x="228" y="694">README.md · docs/ · dvc.lock</text>
+  <text class="fe" x="228" y="716">reprodutibilidade</text>
+  <g class="ok" transform="translate(494,646)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<g class="bx" data-k="f17">
+  <rect class="card" x="522" y="642" width="284" height="92" rx="9"/>
+  <text class="n" x="536" y="668">F17</text>
+  <text class="tt" x="568" y="668">Validação final</text>
+  <text class="pa" x="536" y="694">todos os entregáveis</text>
+  <text class="fe" x="536" y="716">execução completa</text>
+  <g class="ok" transform="translate(802,646)"><title>já feito</title><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+</g>
+<line class="seta" x1="500" y1="688.0" x2="519" y2="688.0" marker-end="url(#rot-seta)"/>
+<path class="seta" d="M1280.0,198 L1280.0,219.0 L356.0,219.0 L356.0,237" marker-end="url(#rot-seta)"/>
+<path class="seta" d="M972.0,332 L972.0,353.0 L356.0,353.0 L356.0,371" marker-end="url(#rot-seta)"/>
+<path class="seta" d="M1280.0,466 L1280.0,487.0 L356.0,487.0 L356.0,505" marker-end="url(#rot-seta)"/>
+<path class="seta" d="M1280.0,600 L1280.0,621.0 L356.0,621.0 L356.0,639" marker-end="url(#rot-seta)"/>
+<text x="32" y="790" font-size="13" font-weight="700" fill="#243A5E">Legenda dos estados</text>
+<g class="bx d-done"><rect class="card" x="214" y="774" width="40" height="24" rx="5"/><g class="ok" transform="translate(252,774) scale(.7)"><circle r="11" fill="#23864C" stroke="#fff" stroke-width="2"/><path d="M-5,0.5 L-1.5,4 L5,-3.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+<text x="268" y="786" font-size="13" font-weight="700" fill="#0E1619">■ Já feito</text>
+<text x="268" y="802" font-size="11.5" fill="#5A6B70">concluída e validada pelo checklist</text>
+<g class="bx d-now"><rect class="card" x="514" y="774" width="40" height="24" rx="5"/></g>
+<text x="568" y="786" font-size="13" font-weight="700" fill="#0E1619">■ Esta fase</text>
+<text x="568" y="802" font-size="11.5" fill="#5A6B70">a que você executa agora</text>
+<g class="bx d-next"><rect class="card" x="814" y="774" width="40" height="24" rx="5"/></g>
+<text x="868" y="786" font-size="13" font-weight="700" fill="#0E1619">■ Próxima fase</text>
+<text x="868" y="802" font-size="11.5" fill="#5A6B70">a que vem logo depois da atual</text>
+<g class="bx d-todo"><rect class="card" x="1114" y="774" width="40" height="24" rx="5"/></g>
+<text x="1168" y="786" font-size="13" font-weight="700" fill="#0E1619">■ Depois</text>
+<text x="1168" y="802" font-size="11.5" fill="#5A6B70">prevista, sem execução imediata</text>
+</svg>

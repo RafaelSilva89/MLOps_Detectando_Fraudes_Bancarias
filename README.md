@@ -422,7 +422,15 @@ docker compose -f docker-compose.airflow.yaml build
 docker compose -f docker-compose.airflow.yaml up -d      # http://localhost:8080 (admin / admin)
 ```
 
-A DAG `fraud_detection_pipeline` cria uma tarefa por estágio do `dvc.yaml`, seguida de `register_model` e `build_app_image`, e roda `@monthly` (o plano de retreino mensal do notebook) ou sob demanda. O projeto roda num ambiente Python separado dentro do container, para as bibliotecas do projeto não conflitarem com as do Airflow.
+A DAG `fraud_detection_pipeline` cria uma tarefa por estágio do `dvc.yaml`, seguida de `register_model` e `build_app_image`, e roda `@monthly` (o plano de retreino mensal do notebook) ou sob demanda. O projeto roda num ambiente Python separado dentro do container (`/opt/project-venv`), para as bibliotecas do projeto não conflitarem com as do Airflow. Por isso cada tarefa põe esse ambiente na frente do `PATH`: o `python` chamado pelos estágios precisa ser o do projeto.
+
+Para testar uma tarefa sem esperar a agenda:
+```bash
+docker compose -f docker-compose.airflow.yaml exec airflow airflow dags list
+docker compose -f docker-compose.airflow.yaml exec airflow airflow tasks test fraud_detection_pipeline dvc_load_data 2026-01-01
+```
+
+> ⚠️ **Memória:** a DAG completa inclui os ~44 min de treino. A VM do Docker precisa de memória para o Airflow e para o treino ao mesmo tempo, e com ~3 GB ela não basta. Nesta máquina (8 GB), a validação no container cobriu as 4 primeiras tarefas.
 
 ### DagsHub (remoto, opcional)
 
@@ -509,6 +517,9 @@ Execução real do `dvc repro` em 20/11/2026: Windows 11, Python 3.13, 4 núcleo
 - **Model Registry:** a run `63249e6a…` foi registrada como `fraude_xgboost` **v1**, com o alias `@champion`.
 - **Inferência:** a CLI no lote de exemplo [`docs/exemplo_lote.csv`](docs/exemplo_lote.csv) (15 fraudes e 35 legítimas do teste) mandou 12 transações para revisão, todas fraudes. Nenhuma legítima foi marcada e 3 fraudes passaram. A origem local e a do registry deram resultados **idênticos**.
 - **Flask:** `/health`, `/predict`, `/upload` e o erro 400 para entrada sem colunas, testados com o servidor de verdade.
+- **Docker (app):** imagem `fraude-api` (2,02 GB) construída; o container com gunicorn respondeu igual ao Flask local. O primeiro build falhou porque, no Linux, o MLflow 3.18 exige `gunicorn<27`; a versão foi fixada em 26.2.0.
+- **Airflow:** a imagem foi construída e a DAG carrega sem erros, com as 10 tarefas na ordem certa. As tarefas `dvc_load_data`, `dvc_validate_data`, `dvc_preprocess_data` e `dvc_engineer_features` terminaram com SUCCESS dentro do container, com os mesmos números. **A DAG completa não foi executada no container**, por falta de memória na VM do Docker (2,8 GB). Antes disso, três correções foram necessárias: tirar o "somente leitura" das pastas vindas do OneDrive, pôr o ambiente do projeto no `PATH` das tarefas e não disputar a VM com o próprio Airflow.
+- **CI (GitHub Actions):** o workflow foi escrito, mas **não foi executado**, porque o repositório é só local.
 - **Testes:** veja a seção 11.
 
 > **O que deu errado no caminho (e virou aprendizado):** a primeira execução completa falhou ao gravar o modelo no MLflow. O MLflow 3 usa o formato seguro `skops`, que recusa tipos não declarados, como o `Booster` do XGBoost. O teste de integração não pegou o problema porque, na base sintética, o vencedor era a Regressão Logística (só tipos do scikit-learn). A correção foi declarar os tipos confiáveis (`SKOPS_TRUSTED_TYPES`) e criar um teste que grava e recarrega **todos** os algoritmos candidatos. Lição: o teste precisa cobrir todos os caminhos possíveis, e não só o que a base de teste por acaso percorre.
