@@ -86,7 +86,7 @@ class FraudPredictor:
             erros = [f"{c['checagem']} ({c['detalhe']})" for c in relatorio["checagens"] if c["bloqueante"] and not c["ok"]]
             raise DataValidationError("Entrada inválida: " + "; ".join(erros))
         X = build_features(transacoes)[COLUNAS_MODELO]
-        proba = self.model.predict_proba(X)[:, 1]
+        proba = self.model.predict_proba(X)[:, 1].astype(float)   # XGBoost devolve float32
         revisar = aplicar_regra(proba, X[COLUNA_VALOR], self.policy["limiar"], self.policy["regra_valor"])
         return pd.DataFrame({"probabilidade_fraude": proba.round(6),
                              "decisao": pd.Series(revisar, index=transacoes.index).map({True: "revisar", False: "liberar"})},

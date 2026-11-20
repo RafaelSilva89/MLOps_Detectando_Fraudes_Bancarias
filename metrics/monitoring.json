@@ -1,0 +1,105 @@
+{
+  "drift_dia2_x_dia1": {
+    "crt": {
+      "PSI": 0.0823159677877683,
+      "K-S (distância)": 0.08566294729479393,
+      "K-S (p-valor)": 0.0,
+      "Leitura": "Estável"
+    },
+    "cep": {
+      "PSI": 0.1950551010997528,
+      "K-S (distância)": 0.173553273170041,
+      "K-S (p-valor)": 0.0,
+      "Leitura": "Atenção"
+    },
+    "reclamacoes": {
+      "PSI": 0.01037814872897895,
+      "K-S (distância)": 0.03847923484367011,
+      "K-S (p-valor)": 1.1529396064891486e-91,
+      "Leitura": "Estável"
+    },
+    "lim_crt": {
+      "PSI": 1.051258555235973,
+      "K-S (distância)": 0.3607710231018678,
+      "K-S (p-valor)": 0.0,
+      "Leitura": "Mudança"
+    },
+    "hist_saldo": {
+      "PSI": 0.002292301708332211,
+      "K-S (distância)": 0.022073265210948545,
+      "K-S (p-valor)": 1.9116067452912426e-30,
+      "Leitura": "Estável"
+    },
+    "hora_do_dia": {
+      "PSI": 0.013086940466069487,
+      "K-S (distância)": 0.04716946059147675,
+      "K-S (p-valor)": 1.5040710528416638e-137,
+      "Leitura": "Estável"
+    },
+    "score do modelo": {
+      "PSI": 0.03469615083796044,
+      "K-S (distância)": 0.06091603636741638,
+      "K-S (p-valor)": 0.0,
+      "Leitura": "Estável"
+    }
+  },
+  "validacao_temporal": {
+    "transacoes": 92198,
+    "fraudes": 114,
+    "PR-AUC": 0.7977396608429271,
+    "Recall": 0.7982456140350878,
+    "Precisão": 0.2676470588235294,
+    "% do valor barrado": 0.7940169294476359
+  },
+  "lotes": {
+    "36 a 40 h": {
+      "Transações": 32508,
+      "Fraudes": 38,
+      "PR-AUC": 0.7784585708552412,
+      "Recall": 0.7631578947368421,
+      "Precisão da fila": 0.2248062015503876,
+      "Revisões": 129,
+      "Situação": "dentro do SLA",
+      "PSI crt": 0.06473880509771283,
+      "PSI cep": 0.10829030172923597,
+      "PSI reclamacoes": 0.2072203381803325,
+      "PSI lim_crt": 0.5870771092088232,
+      "PSI hist_saldo": 0.0051167158262943975
+    },
+    "40 a 44 h": {
+      "Transações": 32914,
+      "Fraudes": 54,
+      "PR-AUC": 0.8371774076180766,
+      "Recall": 0.8333333333333334,
+      "Precisão da fila": 0.36,
+      "Revisões": 125,
+      "Situação": "dentro do SLA",
+      "PSI crt": 0.09115315752008449,
+      "PSI cep": 0.1359781070506738,
+      "PSI reclamacoes": 0.20585552647894,
+      "PSI lim_crt": 0.5811467209915742,
+      "PSI hist_saldo": 0.002712694728306066
+    },
+    "44 a 48 h": {
+      "Transações": 26776,
+      "Fraudes": 22,
+      "PR-AUC": 0.734486472077086,
+      "Recall": 0.7727272727272727,
+      "Precisão da fila": 0.19767441860465115,
+      "Revisões": 86,
+      "Situação": "abaixo do SLA",
+      "PSI crt": 0.08081915732896323,
+      "PSI cep": 0.16354624368462023,
+      "PSI reclamacoes": 0.2726610322095589,
+      "PSI lim_crt": 0.5768422339202914,
+      "PSI hist_saldo": 0.02959023718348717
+    }
+  },
+  "alertas": {
+    "variaveis_com_psi_acima_do_alerta": [
+      "lim_crt"
+    ],
+    "lotes_abaixo_do_sla": 1,
+    "recomendacao": "investigar a origem do drift antes de retreinar; retreinar se 2 lotes seguidos ficarem abaixo do SLA"
+  }
+}

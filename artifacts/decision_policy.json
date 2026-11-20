@@ -1,0 +1,9 @@
+{
+  "limiar": 0.11,
+  "regra_valor": {
+    "corte_valor": 200.0,
+    "limiar_valor": 0.005
+  },
+  "custo_revisao": 5.0,
+  "criterio": "custo mínimo na validação: fraude perdida = valor da transação, revisão = R$ 5"
+}

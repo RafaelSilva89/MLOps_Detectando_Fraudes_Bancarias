@@ -40,7 +40,7 @@ Este projeto pega um modelo que já existia **dentro de um notebook** e o transf
 | Caminhos e constantes espalhados pelas células | Tudo em `params.yaml` e `src/config.py` |
 | Resultado depende do estado do kernel | Resultado depende só do código, dos dados e dos parâmetros, todos versionados |
 | Modelo salvo como um `.pkl` solto | Modelo versionado pelo DVC **e** registrado no MLflow, com número de versão e alias |
-| Sem testes | 37 testes automáticos (unitários + integração) e CI |
+| Sem testes | 39 testes automáticos (unitários + integração) e CI |
 | Prever = abrir o notebook | Prever = CLI, API Flask ou container Docker |
 | Execução manual | Orquestração agendada com Airflow |
 
@@ -109,7 +109,7 @@ data/external/transferencias.zip ──► 1 load_data ──► 2 validate_data
 
     Airflow (dags/): dvc repro <cada estágio> → register_model → docker build      [orquestração]
     Git + DVC: versionam código, parâmetros, dados e modelos                       [reprodutibilidade]
-    pytest + GitHub Actions: 31 testes unitários + 6 de integração                 [qualidade]
+    pytest + GitHub Actions: 33 testes unitários + 6 de integração                 [qualidade]
 ```
 
 **Três ideias organizam tudo:**
@@ -183,7 +183,7 @@ data/external/transferencias.zip ──► 1 load_data ──► 2 validate_data
 |---|---|
 | `app/` | `main.py` (Flask: `/`, `/upload`, `/predict`, `/health`) e `templates/index.html` |
 | `dags/` | `ml_pipeline_dag.py`: a DAG do Airflow |
-| `tests/` | `conftest.py` (base sintética), `unit/` (31 testes) e `integration/` (6 testes do pipeline completo) |
+| `tests/` | `conftest.py` (base sintética), `unit/` (33 testes) e `integration/` (6 testes do pipeline completo) |
 | `docs/` | `arquitetura.svg` |
 | `notebooks/` | `README.md` explicando a separação pesquisa × produção (o notebook original continua no projeto de origem) |
 | `.github/workflows/` | `tests.yml`: CI que roda o pytest a cada push |
@@ -354,12 +354,12 @@ Para rodar **um estágio isolado** (como no projeto-exemplo): `python -m src.dat
 ## 11. Como executar os testes
 
 ```bash
-pytest                       # todos (≈ 3 min)
-pytest tests/unit            # só unitários (≈ 45 s)
+pytest                       # todos (≈ 5 min)
+pytest tests/unit            # só unitários (≈ 5 min: inclui gravar os 8 modelos no MLflow)
 pytest -m integration        # só o pipeline completo com a base sintética
 ```
 
-- **Unitários (31):** validação (aprova a base certa; reprova coluna faltando, nulos, valor negativo, alvo fora de 0/1, texto), split (60/20/20, estratificado, sem sobreposição, reprodutível), features, métricas, custo em reais, regra de decisão, escolha do limiar e da regra de valor, construção dos modelos (peso da classe, SMOTE dentro do Pipeline), PSI, K-S, lotes, inferência e o app.
+- **Unitários (33):** validação (aprova a base certa; reprova coluna faltando, nulos, valor negativo, alvo fora de 0/1, texto), split (60/20/20, estratificado, sem sobreposição, reprodutível), features, métricas, custo em reais, regra de decisão, escolha do limiar e da regra de valor, construção dos modelos (peso da classe, SMOTE dentro do Pipeline), PSI, K-S, lotes, inferência, o app e a gravação de todos os algoritmos no MLflow (skops).
 - **Integração (6):** os 8 estágios + registro rodam de ponta a ponta numa **pasta temporária** com uma **base sintética** (mesmo esquema, 4 mil linhas). Os testes conferem as saídas, a ausência de sobreposição entre as partes, a run e o alias no MLflow, que a inferência local e a do registry dão o mesmo resultado, e as rotas do Flask.
 
 **Por que uma base sintética?** O teste verifica o *encanamento*, não a qualidade do modelo. Ele precisa rodar em segundos, em qualquer máquina e no CI, sem os 150 MB reais.
@@ -485,7 +485,33 @@ e, no `.env`, `MLFLOW_TRACKING_URI=https://dagshub.com/<usuario>/<repo>.mlflow` 
 
 ## Resultados da execução
 
-<!-- RESULTADOS -->
+Execução real do `dvc repro` em 20/11/2026: Windows 11, Python 3.13, 4 núcleos e 8 GB de RAM, ~48 min no total, sendo ~44 min do estágio `train`. **Critério de sucesso: reproduzir o notebook v2.** Todos os números abaixo bateram exatamente.
+
+| Etapa | Notebook v2 | Pipeline MLOps |
+|---|---|---|
+| Duplicatas removidas / transações restantes | 1.081 / 283.726 | 1.081 / 283.726 |
+| Treino / validação / teste (fraudes) | 170.235 (284) / 56.745 (94) / 56.746 (95) | idêntico |
+| PR-AUC na validação: XGBoost / RF / LightGBM / Reg. Logística | 0,8913 / 0,8770 / 0,8555 / 0,7876 | 0,8913 / 0,8770 / 0,8555 / 0,7876 |
+| CV 5 dobras: XGBoost | 0,848 ± 0,028 | 0,8482 ± 0,0276 |
+| Random Search × padrão (3 dobras) | 0,8410 × 0,8199 → ajustado | 0,8410 × 0,8199 → ajustado |
+| Hiperparâmetros | depth 4, 454 árvores, lr 0,157, peso 24,46 | idênticos |
+| Limiar de custo mínimo / regra de valor | 0,11 / R$ 200 com prob. ≥ 0,005 | 0,11 / R$ 200 com prob. ≥ 0,005 |
+| Teste: PR-AUC / recall / precisão | 0,8169 / 0,821 / 0,591 | 0,8169 / 0,8211 / 0,5909 |
+| Teste: fraudes barradas / revisões | 78 de 95 / 132 | 78 de 95 / 132 |
+| Teste: economia líquida (IC 95%) | R$ 11.494,24 (R$ 6.255 a R$ 17.940) | R$ 11.494,24 (R$ 6.255,42 a R$ 17.940,01) |
+| SLA: PR-AUC / recall mínimos | 0,736 / 0,747 | 0,736 / 0,747 |
+| Validação temporal (últimas 12 h): PR-AUC / precisão | 0,798 / 0,268 | 0,7977 / 0,2676 |
+| PSI dia 2 × dia 1: `lim_crt` / `cep` / score | 1,05 / 0,195 / 0,035 | 1,0513 / 0,1951 / 0,0347 |
+| Lotes de 4 h abaixo do SLA | 1 de 3 (44 a 48 h) | 1 de 3 (44 a 48 h) |
+
+**Outras verificações executadas:**
+- **Reprodutibilidade:** o segundo `dvc repro` e o `dvc status` responderam *"Data and pipelines are up to date"*.
+- **Model Registry:** a run `63249e6a…` foi registrada como `fraude_xgboost` **v1**, com o alias `@champion`.
+- **Inferência:** a CLI no lote de exemplo [`docs/exemplo_lote.csv`](docs/exemplo_lote.csv) (15 fraudes e 35 legítimas do teste) mandou 12 transações para revisão, todas fraudes. Nenhuma legítima foi marcada e 3 fraudes passaram. A origem local e a do registry deram resultados **idênticos**.
+- **Flask:** `/health`, `/predict`, `/upload` e o erro 400 para entrada sem colunas, testados com o servidor de verdade.
+- **Testes:** veja a seção 11.
+
+> **O que deu errado no caminho (e virou aprendizado):** a primeira execução completa falhou ao gravar o modelo no MLflow. O MLflow 3 usa o formato seguro `skops`, que recusa tipos não declarados, como o `Booster` do XGBoost. O teste de integração não pegou o problema porque, na base sintética, o vencedor era a Regressão Logística (só tipos do scikit-learn). A correção foi declarar os tipos confiáveis (`SKOPS_TRUSTED_TYPES`) e criar um teste que grava e recarrega **todos** os algoritmos candidatos. Lição: o teste precisa cobrir todos os caminhos possíveis, e não só o que a base de teste por acaso percorre.
 
 ## Do notebook ao código: onde está cada decisão
 

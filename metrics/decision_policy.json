@@ -1,0 +1,137 @@
+{
+  "politica": {
+    "limiar": 0.11,
+    "regra_valor": {
+      "corte_valor": 200.0,
+      "limiar_valor": 0.005
+    },
+    "custo_revisao": 5.0,
+    "criterio": "custo mínimo na validação: fraude perdida = valor da transação, revisão = R$ 5"
+  },
+  "economia_so_limiar": 7915.75,
+  "comparacao_validacao": {
+    "limiar 0,50": {
+      "Valor total das fraudes": 10066.630000000001,
+      "Valor das fraudes barradas": 8142.389999999999,
+      "% do valor barrado": 0.808849634882776,
+      "Custo das revisões": 425.0,
+      "Economia líquida": 7717.389999999999,
+      "Transações revisadas": 85
+    },
+    "limiar 0.11": {
+      "Valor total das fraudes": 10066.630000000001,
+      "Valor das fraudes barradas": 8380.75,
+      "% do valor barrado": 0.8325278668233559,
+      "Custo das revisões": 465.0,
+      "Economia líquida": 7915.75,
+      "Transações revisadas": 93
+    },
+    "regra final": {
+      "Valor total das fraudes": 10066.630000000001,
+      "Valor das fraudes barradas": 8692.66,
+      "% do valor barrado": 0.8635124167670808,
+      "Custo das revisões": 655.0,
+      "Economia líquida": 8037.66,
+      "Transações revisadas": 131
+    }
+  },
+  "top5_regra_valor": [
+    {
+      "corte_valor": 200,
+      "limiar_valor": 0.005,
+      "Revisadas": 131,
+      "% do valor barrado": 0.8635124167670808,
+      "Economia líquida": 8037.66
+    },
+    {
+      "corte_valor": 100,
+      "limiar_valor": 0.005,
+      "Revisadas": 144,
+      "% do valor barrado": 0.8635124167670808,
+      "Economia líquida": 7972.66
+    },
+    {
+      "corte_valor": 1000,
+      "limiar_valor": 0.05,
+      "Revisadas": 96,
+      "% do valor barrado": 0.8325278668233559,
+      "Economia líquida": 7900.75
+    },
+    {
+      "corte_valor": 500,
+      "limiar_valor": 0.05,
+      "Revisadas": 97,
+      "% do valor barrado": 0.8325278668233559,
+      "Economia líquida": 7895.75
+    },
+    {
+      "corte_valor": 1000,
+      "limiar_valor": 0.01,
+      "Revisadas": 100,
+      "% do valor barrado": 0.8325278668233559,
+      "Economia líquida": 7880.75
+    }
+  ],
+  "custo_por_limiar": [
+    {
+      "Limiar": 0.01,
+      "Fraudes detectadas": 84,
+      "Alarmes falsos": 94,
+      "Custo total": 2571.66
+    },
+    {
+      "Limiar": 0.11,
+      "Fraudes detectadas": 81,
+      "Alarmes falsos": 12,
+      "Custo total": 2150.88
+    },
+    {
+      "Limiar": 0.21,
+      "Fraudes detectadas": 80,
+      "Alarmes falsos": 9,
+      "Custo total": 2368.1400000000003
+    },
+    {
+      "Limiar": 0.31,
+      "Fraudes detectadas": 80,
+      "Alarmes falsos": 7,
+      "Custo total": 2358.1400000000003
+    },
+    {
+      "Limiar": 0.41,
+      "Fraudes detectadas": 80,
+      "Alarmes falsos": 7,
+      "Custo total": 2358.1400000000003
+    },
+    {
+      "Limiar": 0.51,
+      "Fraudes detectadas": 79,
+      "Alarmes falsos": 5,
+      "Custo total": 2344.2400000000002
+    },
+    {
+      "Limiar": 0.61,
+      "Fraudes detectadas": 78,
+      "Alarmes falsos": 5,
+      "Custo total": 2369.54
+    },
+    {
+      "Limiar": 0.71,
+      "Fraudes detectadas": 78,
+      "Alarmes falsos": 4,
+      "Custo total": 2364.54
+    },
+    {
+      "Limiar": 0.81,
+      "Fraudes detectadas": 78,
+      "Alarmes falsos": 3,
+      "Custo total": 2359.54
+    },
+    {
+      "Limiar": 0.91,
+      "Fraudes detectadas": 76,
+      "Alarmes falsos": 2,
+      "Custo total": 2346.54
+    }
+  ]
+}

@@ -109,3 +109,204 @@ stages:
       hash: md5
       md5: 3c3e8b91669b0e65a31b6874261e1ad3
       size: 31023428
+  train:
+    cmd: python -m src.model_training.train_model
+    deps:
+    - path: data/preprocessed/train_val_ids.csv
+      hash: md5
+      md5: aa2db8ec939f5039a7d8de7d9481959c
+      size: 1727144
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 57c76c567c80b40d33b4046a35241e84
+      size: 93060285
+    - path: data/processed/val.csv
+      hash: md5
+      md5: 3c3e8b91669b0e65a31b6874261e1ad3
+      size: 31023428
+    - path: src/model_evaluation/metrics.py
+      hash: md5
+      md5: 1199f196d7d33b67d8b598b338ece39a
+      size: 6796
+    - path: src/model_training/models.py
+      hash: md5
+      md5: d58c0eac8bc514022ff82c6e70a25a42
+      size: 6090
+    - path: src/model_training/train_model.py
+      hash: md5
+      md5: cc10a770fcecb6cc30bba2db9774a34f
+      size: 12476
+    params:
+      params.yaml:
+        seed: 42
+        train:
+          balanceamento: class_weight
+          n_jobs: 2
+          cv_folds_comparacao: 5
+          modelos:
+          - XGBoost
+          - Random Forest
+          - LightGBM
+          - Regressão Logística
+        tune:
+          enabled: true
+          method: random_search
+          n_iter: 20
+          cv_folds: 3
+    outs:
+    - path: artifacts/mlflow_run.json
+      hash: md5
+      md5: 65185ab6d3cf6d0505db1c6ce1b02aee
+      size: 77
+    - path: metrics/train.json
+      hash: md5
+      md5: a121bee2e0325a6c6e7c0025043fdd88
+      size: 3982
+    - path: models/model.joblib
+      hash: md5
+      md5: 62dc1c5be7681b746564716d09792e97
+      size: 523539
+    - path: models/model_validation.joblib
+      hash: md5
+      md5: 8f28957a283b95b78526055c6d8ed57c
+      size: 491520
+  decision_policy:
+    cmd: python -m src.decision_policy.optimize_threshold
+    deps:
+    - path: data/processed/val.csv
+      hash: md5
+      md5: 3c3e8b91669b0e65a31b6874261e1ad3
+      size: 31023428
+    - path: models/model_validation.joblib
+      hash: md5
+      md5: 8f28957a283b95b78526055c6d8ed57c
+      size: 491520
+    - path: src/decision_policy/optimize_threshold.py
+      hash: md5
+      md5: 65c50e80310c0fba229767c754f72581
+      size: 6732
+    params:
+      params.yaml:
+        decision_policy:
+          custo_revisao: 5.0
+          limiares:
+            inicio: 0.01
+            fim: 0.99
+            passo: 0.01
+          regra_valor:
+            cortes_valor:
+            - 100
+            - 200
+            - 500
+            - 1000
+            limiares_valor:
+            - 0.0005
+            - 0.001
+            - 0.002
+            - 0.005
+            - 0.01
+            - 0.02
+            - 0.05
+    outs:
+    - path: artifacts/decision_policy.json
+      hash: md5
+      md5: 897508fe8392ed11ace218caa7212db8
+      size: 230
+    - path: metrics/decision_policy.json
+      hash: md5
+      md5: ea6e645dba432e673c5fac3af6173eb9
+      size: 3524
+  evaluate:
+    cmd: python -m src.model_evaluation.evaluate_model
+    deps:
+    - path: artifacts/decision_policy.json
+      hash: md5
+      md5: 897508fe8392ed11ace218caa7212db8
+      size: 230
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 1fcf6c012ddf3315b316d6151571f8d1
+      size: 31019877
+    - path: metrics/train.json
+      hash: md5
+      md5: a121bee2e0325a6c6e7c0025043fdd88
+      size: 3982
+    - path: models/model.joblib
+      hash: md5
+      md5: 62dc1c5be7681b746564716d09792e97
+      size: 523539
+    - path: src/model_evaluation/evaluate_model.py
+      hash: md5
+      md5: 47d80c43d06c873401f4b2796a8e2114
+      size: 8555
+    params:
+      params.yaml:
+        evaluate:
+          bootstrap_n: 1000
+        seed: 42
+    outs:
+    - path: metrics/evaluation.json
+      hash: md5
+      md5: c388379959dad6719b1147735985080d
+      size: 1965
+    - path: models/model_card.json
+      hash: md5
+      md5: f823e1c647e51c9210f5c22b57dba7fc
+      size: 2613
+  monitor:
+    cmd: python -m src.monitoring.monitor
+    deps:
+    - path: artifacts/decision_policy.json
+      hash: md5
+      md5: 897508fe8392ed11ace218caa7212db8
+      size: 230
+    - path: data/preprocessed/test.csv
+      hash: md5
+      md5: 2dfa107d452d6db63e5514268bb1f113
+      size: 30512442
+    - path: data/preprocessed/train.csv
+      hash: md5
+      md5: 5f5d1a6c08b99bd1fcdd1475a7a960d7
+      size: 91534450
+    - path: data/preprocessed/val.csv
+      hash: md5
+      md5: 7b4529e566c3f0a2f6016fb24fb1daf0
+      size: 30513285
+    - path: metrics/evaluation.json
+      hash: md5
+      md5: c388379959dad6719b1147735985080d
+      size: 1965
+    - path: models/model.joblib
+      hash: md5
+      md5: 62dc1c5be7681b746564716d09792e97
+      size: 523539
+    - path: models/model_validation.joblib
+      hash: md5
+      md5: 8f28957a283b95b78526055c6d8ed57c
+      size: 491520
+    - path: src/monitoring/drift.py
+      hash: md5
+      md5: dc3897a86e3c045edcae0e0488ef50bb
+      size: 4304
+    - path: src/monitoring/monitor.py
+      hash: md5
+      md5: 13727460d20132fa6fe156f775391be0
+      size: 7060
+    params:
+      params.yaml:
+        monitor:
+          horas_treino_temporal: 36
+          horas_lote: 4
+          psi_alerta: 0.25
+          variaveis:
+          - crt
+          - cep
+          - reclamacoes
+          - lim_crt
+          - hist_saldo
+          - hora_do_dia
+    outs:
+    - path: metrics/monitoring.json
+      hash: md5
+      md5: 2e8cedee271b0b52fc9209d98c170759
+      size: 3181

@@ -1,0 +1,70 @@
+{
+  "transacoes": 56746,
+  "fraudes": 95,
+  "metricas_regra_final": {
+    "Acurácia": 0.998748810488845,
+    "Precisão": 0.5909090909090909,
+    "Recall": 0.8210526315789474,
+    "F1": 0.6872246696035242,
+    "AUC-ROC": 0.9753209168974579,
+    "PR-AUC": 0.8168837060663453,
+    "Especificidade": 0.9990467952904627,
+    "Verdadeiros Positivos": 78,
+    "Verdadeiros Negativos": 56597,
+    "Falsos Positivos": 54,
+    "Falsos Negativos": 17
+  },
+  "resultado_em_reais": {
+    "Regra final": {
+      "Valor total das fraudes": 14766.310000000001,
+      "Valor das fraudes barradas": 12154.240000000002,
+      "% do valor barrado": 0.8231061111408334,
+      "Custo das revisões": 660.0,
+      "Economia líquida": 11494.240000000002,
+      "Transações revisadas": 132
+    },
+    "Só o limiar": {
+      "Valor total das fraudes": 14766.310000000001,
+      "Valor das fraudes barradas": 10979.76,
+      "% do valor barrado": 0.7435682983765071,
+      "Custo das revisões": 475.0,
+      "Economia líquida": 10504.76,
+      "Transações revisadas": 95
+    },
+    "Limiar 0,50": {
+      "Valor total das fraudes": 14766.310000000001,
+      "Valor das fraudes barradas": 10954.71,
+      "% do valor barrado": 0.7418718691399543,
+      "Custo das revisões": 380.0,
+      "Economia líquida": 10574.71,
+      "Transações revisadas": 76
+    }
+  },
+  "intervalo_95_regra_final": {
+    "Recall": [
+      0.7473684210526316,
+      0.8947368421052632
+    ],
+    "Precisão": [
+      0.5306122448979592,
+      0.6695542372881356
+    ],
+    "% do valor barrado": [
+      0.6395263627665341,
+      0.9750331618568382
+    ],
+    "Economia líquida": [
+      6255.420999999999,
+      17940.014499999997
+    ]
+  },
+  "intervalo_95_pr_auc": [
+    0.7361258789440923,
+    0.8887265280877573
+  ],
+  "regra_final_melhor_que_0_5_em": 0.88,
+  "sla": {
+    "pr_auc_minima": 0.736,
+    "recall_minimo": 0.747
+  }
+}

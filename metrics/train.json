@@ -17,7 +17,7 @@
       "Falsos Positivos": 6,
       "Falsos Negativos": 14,
       "PR-AUC treino": 1.0,
-      "Tempo de treino (s)": 19.6
+      "Tempo de treino (s)": 13.7
     },
     "Random Forest": {
       "Acurácia": 0.9996123006432285,
@@ -32,7 +32,7 @@
       "Falsos Positivos": 7,
       "Falsos Negativos": 15,
       "PR-AUC treino": 1.0,
-      "Tempo de treino (s)": 107.3
+      "Tempo de treino (s)": 82.6
     },
     "LightGBM": {
       "Acurácia": 0.9995418098510882,
@@ -47,7 +47,7 @@
       "Falsos Positivos": 11,
       "Falsos Negativos": 15,
       "PR-AUC treino": 0.9999999999999999,
-      "Tempo de treino (s)": 20.9
+      "Tempo de treino (s)": 11.4
     },
     "Regressão Logística": {
       "Acurácia": 0.9733368578729403,
@@ -62,7 +62,7 @@
       "Falsos Positivos": 1504,
       "Falsos Negativos": 9,
       "PR-AUC treino": 0.728662606398558,
-      "Tempo de treino (s)": 3.3
+      "Tempo de treino (s)": 3.4
     }
   },
   "validacao_cruzada": {
@@ -71,28 +71,28 @@
       "PR-AUC (desvio)": 0.02757422894244315,
       "Recall (média)": 0.8253684210526316,
       "Precisão (média)": 0.9130095177612325,
-      "Tempo (s)": 73.0
+      "Tempo (s)": 52.2
     },
     "Random Forest": {
       "PR-AUC (média)": 0.839676411665344,
       "PR-AUC (desvio)": 0.034468560201074666,
       "Recall (média)": 0.7962456140350878,
       "Precisão (média)": 0.9247133546011561,
-      "Tempo (s)": 538.2
+      "Tempo (s)": 452.8
     },
     "LightGBM": {
       "PR-AUC (média)": 0.8243219980360873,
       "PR-AUC (desvio)": 0.0319417677765834,
       "Recall (média)": 0.8227017543859649,
       "Precisão (média)": 0.8793613062420922,
-      "Tempo (s)": 55.5
+      "Tempo (s)": 51.7
     },
     "Regressão Logística": {
       "PR-AUC (média)": 0.7546149045365809,
       "PR-AUC (desvio)": 0.027389989199120054,
       "Recall (média)": 0.9073333333333334,
       "Precisão (média)": 0.05748076656846568,
-      "Tempo (s)": 13.0
+      "Tempo (s)": 13.5
     }
   },
   "ajuste": {
