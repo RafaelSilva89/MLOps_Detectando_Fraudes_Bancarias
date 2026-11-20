@@ -5,13 +5,14 @@ P5 = "Parte 5 · Fechamento"
 
 # Resultado real da validação do Airflow no projeto de referência (atualizar se mudar)
 AIRFLOW_REF = (
-    "<p><b>Airflow: parcialmente validado.</b> A imagem (Airflow 2.10.5 + o projeto num ambiente Python separado) foi construída; a DAG "
-    "<code>fraud_detection_pipeline</code> carrega sem erros, com as 10 tarefas na ordem certa; as 4 primeiras tarefas "
-    "(<code>dvc_load_data</code>, <code>dvc_validate_data</code>, <code>dvc_preprocess_data</code>, <code>dvc_engineer_features</code>) "
-    "terminaram com SUCCESS via <code>airflow tasks test</code>, com os mesmos números do notebook. A DAG completa (com os ~44 min de treino) "
-    "não foi executada no container: a VM do Docker tem 2,8 GB. Três lições reais: pastas do OneDrive chegam como somente leitura "
+    "<p><b>Airflow: implementado e validado.</b> A DAG <code>fraud_detection_pipeline</code> rodou inteira dentro do container "
+    "(<code>airflow dags test</code>): as <b>10 tarefas terminaram com SUCCESS</b>, os 8 estágios em ~43 min, o registro do modelo e a imagem "
+    "<code>fraude-api:latest</code> construída no Docker-in-Docker. Cinco lições reais: pastas do OneDrive chegam como somente leitura "
     "(<code>chmod -R u+w</code>); o <code>python</code> dos estágios era o do Airflow, sem scikit-learn (a DAG põe o ambiente do projeto "
-    "na frente do <code>PATH</code>); e o estágio foi encerrado por falta de memória (código 137) disputando a VM com o Airflow.</p>"
+    "na frente do <code>PATH</code>); com 3 GB a VM do Docker encerra o treino (código 137), com 5 GB funcionou; o webserver passou dos 120 s "
+    "para subir e derrubou o container (o compose aumenta o tempo limite); e duas execuções da mesma tarefa ao mesmo tempo dão conflito "
+    "de XCom. No Linux, com as mesmas versões, o Random Search deu 0,8420 (contra 0,8410 no Windows), e o limiar passou a 0,15: "
+    "reprodutibilidade exata vale para a mesma plataforma.</p>"
 )
 
 FASES = [
@@ -327,7 +328,7 @@ Data and pipelines are up to date."""),
 "titulo": "Validação final: tudo de ponta a ponta, comparado com o notebook",
 "lede": "A última fase não cria nada novo: executa e confere. O critério de sucesso da migração é reproduzir os números do notebook (os anotados na fase 2) e ter cada entregável funcionando.",
 "pastas": "todas",
-"ref": "<p><b>Validado, com uma ressalva.</b> Todos os números do notebook reproduzidos exatamente (tabela no README); 39 testes passando; registro, CLI, Flask e Docker funcionando. Ressalva: o Airflow foi validado parcialmente (fase 13) e a CI não foi executada (sem remoto).</p>",
+"ref": "<p><b>Validado, com uma ressalva.</b> Todos os números do notebook reproduzidos exatamente (tabela no README); 39 testes passando; registro, CLI, Flask e Docker funcionando. A DAG do Airflow rodou inteira no container, com 10/10 tarefas (fase 13), mas no Linux os números diferem um pouco a partir do Random Search. Ressalva: a CI não foi executada (sem remoto).</p>",
 "A": [
   ("p", "Rodar a sequência completa e conferir cada entregável contra um critério objetivo."),
   ("p", "<b>Problema que resolve:</b> declarar \"pronto\" sem prova. Aqui, pronto = cada linha da tabela de verificação conferida."),

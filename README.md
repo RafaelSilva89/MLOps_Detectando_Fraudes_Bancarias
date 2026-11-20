@@ -430,7 +430,12 @@ docker compose -f docker-compose.airflow.yaml exec airflow airflow dags list
 docker compose -f docker-compose.airflow.yaml exec airflow airflow tasks test fraud_detection_pipeline dvc_load_data 2026-01-01
 ```
 
-> ⚠️ **Memória:** a DAG completa inclui os ~44 min de treino. A VM do Docker precisa de memória para o Airflow e para o treino ao mesmo tempo, e com ~3 GB ela não basta. Nesta máquina (8 GB), a validação no container cobriu as 4 primeiras tarefas.
+Para rodar a DAG inteira de uma vez (inclui os ~40 min de treino), espere o `/health` responder `healthy` e use:
+```bash
+docker compose -f docker-compose.airflow.yaml exec airflow airflow dags test fraud_detection_pipeline 2026-11-19
+```
+
+> ⚠️ **Memória e CPU:** a VM do Docker precisa aguentar o Airflow e o treino ao mesmo tempo. Com 3 GB, o treino é encerrado (código 137); a execução completa funcionou com **5 GB** (`memory=5GB` no `%UserProfile%\.wslconfig`). Numa máquina modesta, o webserver também pode demorar mais de 120 s para subir com a CPU ocupada e derrubar o container. Por isso o compose aumenta `AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT` e reduz os workers.
 
 ### DagsHub (remoto, opcional)
 
@@ -518,7 +523,30 @@ Execução real do `dvc repro` em 20/11/2026: Windows 11, Python 3.13, 4 núcleo
 - **Inferência:** a CLI no lote de exemplo [`docs/exemplo_lote.csv`](docs/exemplo_lote.csv) (15 fraudes e 35 legítimas do teste) mandou 12 transações para revisão, todas fraudes. Nenhuma legítima foi marcada e 3 fraudes passaram. A origem local e a do registry deram resultados **idênticos**.
 - **Flask:** `/health`, `/predict`, `/upload` e o erro 400 para entrada sem colunas, testados com o servidor de verdade.
 - **Docker (app):** imagem `fraude-api` (2,02 GB) construída; o container com gunicorn respondeu igual ao Flask local. O primeiro build falhou porque, no Linux, o MLflow 3.18 exige `gunicorn<27`; a versão foi fixada em 26.2.0.
-- **Airflow:** a imagem foi construída e a DAG carrega sem erros, com as 10 tarefas na ordem certa. As tarefas `dvc_load_data`, `dvc_validate_data`, `dvc_preprocess_data` e `dvc_engineer_features` terminaram com SUCCESS dentro do container, com os mesmos números. **A DAG completa não foi executada no container**, por falta de memória na VM do Docker (2,8 GB). Antes disso, três correções foram necessárias: tirar o "somente leitura" das pastas vindas do OneDrive, pôr o ambiente do projeto no `PATH` das tarefas e não disputar a VM com o próprio Airflow.
+- **Airflow:** a DAG completa rodou dentro do container (`airflow dags test`, 20/11/2026), com as **10 tarefas em SUCCESS** e a DAG run em `success`:
+  - os 8 estágios do DVC levaram ~43 min, sendo 37 só no treino;
+  - `register_model` registrou o modelo no MLflow do container;
+  - `build_app_image` construiu a imagem `fraude-api:latest` (1,33 GB) no Docker-in-Docker.
+
+  Foram necessárias cinco correções:
+  - tirar o "somente leitura" das pastas vindas do OneDrive;
+  - pôr o ambiente do projeto no `PATH` das tarefas;
+  - dar 5 GB à VM do Docker;
+  - aumentar o tempo limite do webserver;
+  - evitar duas execuções da mesma tarefa ao mesmo tempo (o Airflow recusa o segundo registro de resultado).
+- **Diferença entre plataformas (Linux × Windows):** no container, com as **mesmas versões** das bibliotecas mas Python 3.12, Linux e 2 CPUs:
+  - a comparação e a CV bateram exatamente com o notebook (XGBoost validação 0,8913 e CV 0,8482 ± 0,0276);
+  - o Random Search deu 0,8420, contra 0,8410 no Windows, e daí em diante os números mudam um pouco:
+
+  | | Windows (oficial) | Container Linux |
+  |---|---|---|
+  | Limiar | 0,11 | 0,15 |
+  | Regra de valor | R$ 200 / 0,005 | R$ 200 / 0,002 |
+  | PR-AUC no teste | 0,8169 | 0,8197 |
+  | Recall | 0,821 | 0,789 |
+  | Economia líquida | R$ 11.494,24 | R$ 10.330,72 |
+
+  Não há erro de código. Os binários do XGBoost (Windows × manylinux) e o número de threads mudam a ordem das somas em ponto flutuante, e a busca aleatória escolhe outro conjunto vizinho. A lição é que **reprodutibilidade exata vale para a mesma plataforma**: para comparar números, rode sempre no mesmo ambiente (de preferência o container). Os números oficiais deste README são os do Windows, que reproduzem o notebook.
 - **CI (GitHub Actions):** o workflow foi escrito, mas **não foi executado**, porque o repositório é só local.
 - **Testes:** veja a seção 11.
 
@@ -554,6 +582,9 @@ Execução real do `dvc repro` em 20/11/2026: Windows 11, Python 3.13, 4 núcleo
 - **Premissa de custo.** A revisão a R$ 5 é uma suposição. Os valores, chamados de reais, estão em euros na base pública.
 - **Monitoramento simulado.** O estágio `monitor` usa os dois dias da base. Em produção, ele rodaria sobre as transações novas, agendado no Airflow.
 - **MLflow local.** Com SQLite, as runs ficam só nesta máquina. Para compartilhar, use um servidor (ou o DagsHub).
+- **Reprodutibilidade por plataforma.** Mesmo com versões fixas, o treino no container Linux deu números um pouco diferentes dos do Windows (limiar 0,15 × 0,11). Para comparar resultados, use sempre a mesma plataforma.
+- **Airflow pesado para máquinas pequenas.** A DAG completa precisou de 5 GB para a VM do Docker numa máquina de 8 GB.
+- **Sem CI executada e sem DagsHub.** O workflow existe, mas só roda com um repositório remoto. O DagsHub está apenas documentado.
 
 ## Como repetir esta arquitetura em outro projeto
 

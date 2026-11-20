@@ -41,6 +41,10 @@ services:
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - AIRFLOW__CORE__DAGS_FOLDER=/home/airflow/fraud_detection/dags
       - DOCKER_HOST=tcp://dind:2375
+      # Máquinas modestas: com o treino disputando a CPU, o webserver passava dos 120 s padrão para
+      # subir, se desligava e o container reiniciava, matando a tarefa em execução (exit 137).
+      - AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=600
+      - AIRFLOW__WEBSERVER__WORKERS=2
     networks: [backend]
     command: bash -c "
       airflow db migrate &&
