@@ -1,0 +1,53 @@
+# ==============================================================================
+# pyproject.toml: identidade do pacote e dependências com versões FIXAS.
+#
+# Por que versões fixas? Reprodutibilidade. O mesmo código com outra versão do
+# scikit-learn ou do XGBoost pode gerar outro modelo. Fixando as versões, quem
+# instalar o projeto daqui a um ano obtém o mesmo ambiente.
+#
+# Instalação (na raiz do projeto):  pip install -e ".[dev]"
+#   -e  = modo editável: mudanças em src/ valem sem reinstalar
+#   dev = extras para desenvolvimento (testes)
+# ==============================================================================
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fraud_detection_mlops"
+version = "1.0.0"
+description = "Detecção de fraudes em transferências bancárias estruturada com MLOps (DVC, MLflow, Flask, Docker, Airflow)"
+requires-python = ">=3.12"
+dependencies = [
+    # Dados e modelagem (os mesmos algoritmos do notebook v2)
+    "numpy==2.5.5",
+    "pandas==3.1.1",
+    "scipy==1.18.1",
+    "scikit-learn==1.9.1",
+    "xgboost==3.4.1",
+    "lightgbm==4.7.0",
+    "imbalanced-learn==0.14.2",   # SMOTE, só usado se params.yaml pedir (experimentos)
+    "joblib==1.6.0",
+    # Configuração
+    "PyYAML==6.0.3",
+    "python-dotenv==1.2.4",
+    # MLOps
+    "dvc==3.67.1",                # pipeline, versionamento de dados e experimentos
+    "mlflow==3.18.0",             # rastreio de experimentos e Model Registry
+    # Servir o modelo
+    "flask==3.1.3",
+    "gunicorn==27.0.1",           # servidor de produção (Linux/Docker; no Windows use o Flask direto)
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.2.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["integration: testes que executam o pipeline inteiro numa base sintética"]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::FutureWarning", "ignore::UserWarning"]

@@ -1,0 +1,136 @@
+# ==============================================================================
+# dvc.yaml: o PIPELINE do projeto (Pipeline Orchestration + Reproducibility).
+#
+# Cada estágio declara:
+#   cmd     -> o comando que executa
+#   deps    -> arquivos de que depende (código e dados de entrada)
+#   params  -> chaves do params.yaml que ele usa
+#   outs    -> arquivos que produz (o DVC guarda no cache e versiona)
+#   metrics -> JSONs de métricas (cache: false = ficam no Git, para comparar versões)
+#
+# `dvc repro` olha o hash de cada dep/param: só reexecuta os estágios em que algo mudou
+# (e os que vêm depois). Se nada mudou, diz "Data and pipelines are up to date".
+# Os estágios formam um grafo (DAG): veja com `dvc dag`.
+# ==============================================================================
+stages:
+  load_data:
+    cmd: python -m src.data_loading.load_data
+    deps:
+      - src/data_loading/load_data.py
+      - data/external/transferencias.zip
+    params:
+      - load_data.source
+    outs:
+      - data/raw/raw.csv
+
+  validate_data:
+    cmd: python -m src.data_validation.validate_data
+    deps:
+      - src/data_validation/validate_data.py
+      - data/raw/raw.csv
+    metrics:
+      - metrics/data_validation.json:
+          cache: false
+
+  preprocess_data:
+    cmd: python -m src.data_preprocessing.preprocess_data
+    deps:
+      - src/data_preprocessing/preprocess_data.py
+      - data/raw/raw.csv
+      - metrics/data_validation.json     # só roda depois que a validação aprovou a base
+    params:
+      - seed
+      - preprocess_data
+    outs:
+      - data/preprocessed/train.csv
+      - data/preprocessed/val.csv
+      - data/preprocessed/test.csv
+      - data/preprocessed/train_val_ids.csv
+    metrics:
+      - metrics/preprocessing.json:
+          cache: false
+
+  engineer_features:
+    cmd: python -m src.feature_engineering.engineer_features
+    deps:
+      - src/feature_engineering/engineer_features.py
+      - data/preprocessed/train.csv
+      - data/preprocessed/val.csv
+      - data/preprocessed/test.csv
+    outs:
+      - data/processed/train.csv
+      - data/processed/val.csv
+      - data/processed/test.csv
+
+  train:
+    cmd: python -m src.model_training.train_model
+    deps:
+      - src/model_training/train_model.py
+      - src/model_training/models.py
+      - src/model_evaluation/metrics.py
+      - data/processed/train.csv
+      - data/processed/val.csv
+      - data/preprocessed/train_val_ids.csv
+    params:
+      - seed
+      - train
+      - tune
+    outs:
+      - models/model_validation.joblib
+      - models/model.joblib
+      - artifacts/mlflow_run.json:
+          cache: false
+    metrics:
+      - metrics/train.json:
+          cache: false
+
+  decision_policy:
+    cmd: python -m src.decision_policy.optimize_threshold
+    deps:
+      - src/decision_policy/optimize_threshold.py
+      - models/model_validation.joblib
+      - data/processed/val.csv
+    params:
+      - decision_policy
+    outs:
+      - artifacts/decision_policy.json:
+          cache: false
+    metrics:
+      - metrics/decision_policy.json:
+          cache: false
+
+  evaluate:
+    cmd: python -m src.model_evaluation.evaluate_model
+    deps:
+      - src/model_evaluation/evaluate_model.py
+      - models/model.joblib
+      - artifacts/decision_policy.json
+      - data/processed/test.csv
+      - metrics/train.json
+    params:
+      - seed
+      - evaluate
+    outs:
+      - models/model_card.json:
+          cache: false
+    metrics:
+      - metrics/evaluation.json:
+          cache: false
+
+  monitor:
+    cmd: python -m src.monitoring.monitor
+    deps:
+      - src/monitoring/monitor.py
+      - src/monitoring/drift.py
+      - models/model.joblib
+      - models/model_validation.joblib
+      - artifacts/decision_policy.json
+      - metrics/evaluation.json
+      - data/preprocessed/train.csv
+      - data/preprocessed/val.csv
+      - data/preprocessed/test.csv
+    params:
+      - monitor
+    metrics:
+      - metrics/monitoring.json:
+          cache: false

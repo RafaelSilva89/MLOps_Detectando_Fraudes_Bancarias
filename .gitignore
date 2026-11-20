@@ -1,0 +1,19 @@
+# ---- Python ----
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# ---- Projeto ----
+# segredos e configurações locais (o modelo é o .env.example)
+.env
+logs/*.log
+
+# ---- MLflow (rastreio local) ----
+mlruns/
+mlartifacts/
+mlflow.db
+
+# ---- Dados e modelos: versionados pelo DVC, não pelo Git ----
+# O DVC adiciona as linhas exatas nos .gitignore das subpastas (data/raw/.gitignore etc.)
+/data/external/transferencias.zip

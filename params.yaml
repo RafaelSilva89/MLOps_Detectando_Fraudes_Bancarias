@@ -1,0 +1,50 @@
+# ==============================================================================
+# params.yaml: TODOS os parâmetros do pipeline num lugar só (Configuration Management).
+#
+# - Cada estágio do dvc.yaml declara quais chaves daqui ele usa ("params:").
+#   Se você mudar uma delas, o DVC sabe exatamente quais estágios refazer.
+# - Experimentos sem editar o arquivo:  dvc exp run -S tune.n_iter=5
+# - Os valores abaixo reproduzem as decisões do notebook v2.
+# ==============================================================================
+
+seed: 42                    # semente única: split, modelos, busca, bootstrap
+
+load_data:
+  source: data/external/transferencias.zip   # base original (CSV dentro do zip), versionada com `dvc add`
+
+preprocess_data:
+  test_size: 0.2            # 1ª divisão: 20% para o teste (aberto uma única vez, no evaluate)
+  val_size: 0.25            # 2ª divisão: 25% dos 80% restantes = 20% da base para a validação
+
+train:
+  balanceamento: class_weight   # class_weight | smote | none  (notebook: peso da classe empatou com o SMOTE e é mais leve)
+  n_jobs: 2                     # núcleos em paralelo (limitado para não esgotar a memória)
+  cv_folds_comparacao: 5        # validação cruzada que escolhe o algoritmo (em treino + validação)
+  modelos: [XGBoost, Random Forest, LightGBM, Regressão Logística]
+
+tune:
+  enabled: true             # false = usa o algoritmo vencedor com hiperparâmetros padrão
+  method: random_search     # método escolhido no notebook (Grid e Optuna empataram; ver item 7.4)
+  n_iter: 20                # combinações sorteadas
+  cv_folds: 3               # dobras estratificadas da busca (no treino)
+
+decision_policy:
+  custo_revisao: 5.0                         # R$ por transação revisada (premissa de negócio)
+  limiares: {inicio: 0.01, fim: 0.99, passo: 0.01}
+  regra_valor:                               # regra complementar: revisar valores altos com prob. menor
+    cortes_valor: [100, 200, 500, 1000]
+    limiares_valor: [0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05]
+
+evaluate:
+  bootstrap_n: 1000         # amostras do bootstrap estratificado (intervalos de confiança e SLA)
+
+monitor:
+  horas_treino_temporal: 36 # validação temporal: treina nas primeiras 36 h, avalia nas últimas 12 h
+  horas_lote: 4             # tamanho do lote simulado de produção
+  psi_alerta: 0.25          # PSI acima disso = mudança relevante
+  variaveis: [crt, cep, reclamacoes, lim_crt, hist_saldo, hora_do_dia]
+
+inference:
+  model_source: local       # local (models/ + artifacts/) | registry (MLflow Model Registry, alias champion)
+  registered_model_name: fraude_xgboost
+  alias: champion

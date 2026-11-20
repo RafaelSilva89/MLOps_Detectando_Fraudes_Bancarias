@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detecção de Fraudes</title>
+  <style>
+    :root { --azul: #0078D4; --escuro: #243A5E; --vermelho: #C50F1F; --verde: #107C10; --cinza: #F3F2F1; }
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 0; background: #fff; color: #222; }
+    header { background: var(--escuro); color: #fff; padding: 20px 32px; }
+    header h1 { margin: 0; font-size: 22px; }
+    header p { margin: 6px 0 0; opacity: .85; font-size: 14px; }
+    main { max-width: 980px; margin: 0 auto; padding: 24px 16px; }
+    .card { background: var(--cinza); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
+    .regra { font-size: 14px; line-height: 1.6; }
+    button { background: var(--azul); color: #fff; border: 0; border-radius: 4px; padding: 9px 18px; font-size: 14px; cursor: pointer; }
+    .erro { background: #FDE7E9; color: var(--vermelho); border-left: 4px solid var(--vermelho); padding: 12px 16px; border-radius: 4px; }
+    .resumo { font-size: 16px; }
+    .resumo b { color: var(--vermelho); }
+    table.tabela { border-collapse: collapse; width: 100%; font-size: 13px; }
+    table.tabela th, table.tabela td { border-bottom: 1px solid #ddd; padding: 6px 10px; text-align: right; }
+    table.tabela th { background: var(--escuro); color: #fff; }
+    code { background: #fff; padding: 1px 5px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Detecção de Fraudes em Transferências</h1>
+    <p>Envie transações; o modelo devolve a probabilidade de fraude e se cada uma deve ir para revisão manual.</p>
+  </header>
+  <main>
+    <div class="card regra">
+      <b>Regra de decisão em uso</b> (escolhida na validação pelo menor custo em reais):<br>
+      revisar se a probabilidade for &ge; <b>{{ "%.2f"|format(politica.limiar) }}</b>
+      {% if politica.regra_valor %}
+        ou se o valor for &ge; <b>R$ {{ "%.0f"|format(politica.regra_valor.corte_valor) }}</b>
+        com probabilidade &ge; <b>{{ "%.3f"|format(politica.regra_valor.limiar_valor) }}</b>
+      {% endif %}
+      (revisão custa R$ {{ "%.0f"|format(politica.custo_revisao) }}).
+    </div>
+
+    <div class="card">
+      <form action="/upload" method="post" enctype="multipart/form-data">
+        <p>CSV no formato da base: <code>Timestamp</code>, as 28 componentes (<code>pais</code> ... <code>lim_crt</code>)
+          e <code>hist_saldo</code>. A coluna <code>Target</code> é opcional (aparece na tabela para conferência).</p>
+        <input type="file" name="file" accept=".csv" required>
+        <button type="submit">Avaliar transações</button>
+      </form>
+    </div>
+
+    {% if erro %}<div class="erro">{{ erro }}</div>{% endif %}
+
+    {% if resumo %}
+      <p class="resumo">{{ resumo.total }} transações avaliadas: <b>{{ resumo.revisar }}</b> enviadas para revisão.
+        Ordenadas pela probabilidade de fraude:</p>
+      {{ tabela|safe }}
+    {% endif %}
+  </main>
+</body>
+</html>
