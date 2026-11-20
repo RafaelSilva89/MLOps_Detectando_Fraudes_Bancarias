@@ -36,7 +36,10 @@ dependencies = [
     "mlflow==3.18.0",             # rastreio de experimentos e Model Registry
     # Servir o modelo
     "flask==3.1.3",
-    "gunicorn==27.0.1",           # servidor de produção (Linux/Docker; no Windows use o Flask direto)
+    # Servidor de produção (Linux/Docker; no Windows use o Flask direto). No Linux, o MLflow 3.18
+    # exige gunicorn<27; a versão foi resolvida para Linux com:
+    #   uv pip compile pyproject.toml --python-platform x86_64-manylinux_2_28
+    "gunicorn==26.2.0",
 ]
 
 [project.optional-dependencies]
