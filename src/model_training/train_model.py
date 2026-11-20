@@ -37,7 +37,7 @@ from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, cross_v
 
 from src.config import ALVO, COLUNAS_MODELO, ID, PATHS, load_params
 from src.model_evaluation.metrics import calcular_metricas_completas
-from src.model_training.models import build_models, prefix_for_pipeline, search_space
+from src.model_training.models import SKOPS_TRUSTED_TYPES, build_models, prefix_for_pipeline, search_space
 from src.tracking import start_training_run
 from src.utils import load_splits, read_csv, save_json
 
@@ -187,7 +187,8 @@ def log_to_mlflow(resultado: dict, params: dict, X_exemplo: pd.DataFrame) -> Non
     # O modelo vai para o MLflow com a "assinatura" (nomes e tipos das 30 colunas de entrada)
     modelo = resultado["modelo_final"]
     assinatura = infer_signature(X_exemplo, modelo.predict_proba(X_exemplo)[:, 1])
-    mlflow.sklearn.log_model(modelo, name="model", signature=assinatura, input_example=X_exemplo.head(3))
+    mlflow.sklearn.log_model(modelo, name="model", signature=assinatura, input_example=X_exemplo.head(3),
+                             skops_trusted_types=SKOPS_TRUSTED_TYPES)
 
 
 def main() -> None:

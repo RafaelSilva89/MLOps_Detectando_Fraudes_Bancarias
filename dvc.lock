@@ -1,0 +1,111 @@
+schema: '2.0'
+stages:
+  load_data:
+    cmd: python -m src.data_loading.load_data
+    deps:
+    - path: data/external/transferencias.zip
+      hash: md5
+      md5: c02f93cc63724f50aeb0e916f2765b90
+      size: 68511819
+    - path: src/data_loading/load_data.py
+      hash: md5
+      md5: fb25a0ae921c91d51593557488df67c5
+      size: 1811
+    params:
+      params.yaml:
+        load_data.source: data/external/transferencias.zip
+    outs:
+    - path: data/raw/raw.csv
+      hash: md5
+      md5: 24a715bac68cbd7cf32e133b2d1b713e
+      size: 151255344
+  validate_data:
+    cmd: python -m src.data_validation.validate_data
+    deps:
+    - path: data/raw/raw.csv
+      hash: md5
+      md5: 24a715bac68cbd7cf32e133b2d1b713e
+      size: 151255344
+    - path: src/data_validation/validate_data.py
+      hash: md5
+      md5: 87da9bf172ad3766f616683879368633
+      size: 5526
+    outs:
+    - path: metrics/data_validation.json
+      hash: md5
+      md5: d5c2202fe77cae420e53069551ee6adf
+      size: 1821
+  preprocess_data:
+    cmd: python -m src.data_preprocessing.preprocess_data
+    deps:
+    - path: data/raw/raw.csv
+      hash: md5
+      md5: 24a715bac68cbd7cf32e133b2d1b713e
+      size: 151255344
+    - path: metrics/data_validation.json
+      hash: md5
+      md5: d5c2202fe77cae420e53069551ee6adf
+      size: 1821
+    - path: src/data_preprocessing/preprocess_data.py
+      hash: md5
+      md5: 3f622f1f5df730d3da8565672a74c7f7
+      size: 4658
+    params:
+      params.yaml:
+        preprocess_data:
+          test_size: 0.2
+          val_size: 0.25
+        seed: 42
+    outs:
+    - path: data/preprocessed/test.csv
+      hash: md5
+      md5: 2dfa107d452d6db63e5514268bb1f113
+      size: 30512442
+    - path: data/preprocessed/train.csv
+      hash: md5
+      md5: 5f5d1a6c08b99bd1fcdd1475a7a960d7
+      size: 91534450
+    - path: data/preprocessed/train_val_ids.csv
+      hash: md5
+      md5: aa2db8ec939f5039a7d8de7d9481959c
+      size: 1727144
+    - path: data/preprocessed/val.csv
+      hash: md5
+      md5: 7b4529e566c3f0a2f6016fb24fb1daf0
+      size: 30513285
+    - path: metrics/preprocessing.json
+      hash: md5
+      md5: 1613d99ad87857f6e63b034fbf6e2d15
+      size: 406
+  engineer_features:
+    cmd: python -m src.feature_engineering.engineer_features
+    deps:
+    - path: data/preprocessed/test.csv
+      hash: md5
+      md5: 2dfa107d452d6db63e5514268bb1f113
+      size: 30512442
+    - path: data/preprocessed/train.csv
+      hash: md5
+      md5: 5f5d1a6c08b99bd1fcdd1475a7a960d7
+      size: 91534450
+    - path: data/preprocessed/val.csv
+      hash: md5
+      md5: 7b4529e566c3f0a2f6016fb24fb1daf0
+      size: 30513285
+    - path: src/feature_engineering/engineer_features.py
+      hash: md5
+      md5: 1d191ce072eb647f7830fe4c94f7f572
+      size: 2900
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 1fcf6c012ddf3315b316d6151571f8d1
+      size: 31019877
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 57c76c567c80b40d33b4046a35241e84
+      size: 93060285
+    - path: data/processed/val.csv
+      hash: md5
+      md5: 3c3e8b91669b0e65a31b6874261e1ad3
+      size: 31023428

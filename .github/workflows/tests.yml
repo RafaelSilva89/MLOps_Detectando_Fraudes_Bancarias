@@ -1,0 +1,21 @@
+# Integração contínua (CI): a cada push ou pull request, o GitHub instala o projeto e roda os testes.
+# Se algum teste falhar, o commit fica marcado em vermelho antes de chegar à branch principal.
+# Os testes usam a base sintética: não precisam dos dados reais nem do modelo treinado.
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -e ".[dev]"
+      - run: pytest -v

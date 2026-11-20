@@ -15,5 +15,12 @@ mlartifacts/
 mlflow.db
 
 # ---- Dados e modelos: versionados pelo DVC, não pelo Git ----
-# O DVC adiciona as linhas exatas nos .gitignore das subpastas (data/raw/.gitignore etc.)
+# O Git guarda só os "ponteiros" (dvc.lock e *.dvc, com o hash de cada arquivo);
+# o conteúdo fica no cache do DVC. Declarados aqui explicitamente: se um destes entrar no
+# Git, o DVC se recusa a versioná-lo ("output is already tracked by SCM").
 /data/external/transferencias.zip
+/data/raw/*.csv
+/data/preprocessed/*.csv
+/data/processed/*.csv
+/models/*.joblib
+logs/*.txt

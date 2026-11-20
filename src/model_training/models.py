@@ -30,6 +30,19 @@ from sklearn.preprocessing import StandardScaler
 
 BALANCEAMENTOS = ("class_weight", "smote", "none")
 
+# O MLflow 3 grava modelos scikit-learn no formato `skops`, que (ao contrário do pickle) não executa
+# código arbitrário ao carregar e só aceita os tipos declarados como confiáveis. Tipos do próprio
+# scikit-learn já são confiáveis; abaixo, os das outras bibliotecas que os nossos modelos podem conter.
+SKOPS_TRUSTED_TYPES = [
+    "xgboost.core.Booster", "xgboost.sklearn.XGBClassifier",
+    "lightgbm.basic.Booster", "lightgbm.sklearn.LGBMClassifier", "collections.OrderedDict",
+    "imblearn.pipeline.Pipeline", "imblearn.over_sampling._smote.base.SMOTE",
+    "sklearn.metrics._dist_metrics.EuclideanDistance64", "sklearn.neighbors._kd_tree.KDTree",
+    # Árvores do Random Forest: o skops pede confirmação porque um arquivo ADULTERADO poderia ter índices
+    # inválidos. Aqui os arquivos são gerados pelo próprio pipeline (origem confiável).
+    "sklearn.tree._tree.Tree",
+]
+
 
 def _montar(modelo: BaseEstimator, balanceamento: str, semente: int, escala: bool = False) -> BaseEstimator:
     """Envolve o modelo nos passos necessários: escala (se pedida) e SMOTE (se pedido)."""

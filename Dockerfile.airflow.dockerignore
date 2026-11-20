@@ -1,0 +1,25 @@
+# Arquivos ignorados ao montar a imagem do AIRFLOW (o Docker usa este arquivo em vez do
+# .dockerignore quando o Dockerfile é o Dockerfile.airflow).
+# Diferente do app, o Airflow PRECISA da base original para rodar o pipeline do zero.
+
+.venv
+**/__pycache__
+*.egg-info
+.pytest_cache
+.git
+.dvc
+.env
+mlruns
+mlflow.db
+logs
+tests
+
+# Saídas do pipeline: são geradas de novo dentro do container
+data/raw/*.csv
+data/preprocessed/*.csv
+data/processed/*.csv
+models/*.joblib
+models/model_card.json
+artifacts/*.json
+metrics/*.json
+dvc.lock

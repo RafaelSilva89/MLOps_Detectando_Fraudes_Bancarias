@@ -1,0 +1,122 @@
+{
+  "algoritmo": "XGBoost",
+  "modelo_escolhido": "XGBoost ajustado",
+  "proporcao_legitimas_por_fraude": 598.419014084507,
+  "balanceamento": "class_weight",
+  "validacao": {
+    "XGBoost": {
+      "Acurácia": 0.9996475460392986,
+      "Precisão": 0.9302325581395349,
+      "Recall": 0.851063829787234,
+      "F1": 0.8888888888888888,
+      "AUC-ROC": 0.976876523183944,
+      "PR-AUC": 0.891270387773787,
+      "Especificidade": 0.999894088365607,
+      "Verdadeiros Positivos": 80,
+      "Verdadeiros Negativos": 56645,
+      "Falsos Positivos": 6,
+      "Falsos Negativos": 14,
+      "PR-AUC treino": 1.0,
+      "Tempo de treino (s)": 19.6
+    },
+    "Random Forest": {
+      "Acurácia": 0.9996123006432285,
+      "Precisão": 0.9186046511627907,
+      "Recall": 0.8404255319148937,
+      "F1": 0.8777777777777778,
+      "AUC-ROC": 0.9557007688358395,
+      "PR-AUC": 0.8769965080284489,
+      "Especificidade": 0.9998764364265414,
+      "Verdadeiros Positivos": 79,
+      "Verdadeiros Negativos": 56644,
+      "Falsos Positivos": 7,
+      "Falsos Negativos": 15,
+      "PR-AUC treino": 1.0,
+      "Tempo de treino (s)": 107.3
+    },
+    "LightGBM": {
+      "Acurácia": 0.9995418098510882,
+      "Precisão": 0.8777777777777778,
+      "Recall": 0.8404255319148937,
+      "F1": 0.8586956521739131,
+      "AUC-ROC": 0.9815379496033384,
+      "PR-AUC": 0.8554874635393769,
+      "Especificidade": 0.9998058286702795,
+      "Verdadeiros Positivos": 79,
+      "Verdadeiros Negativos": 56640,
+      "Falsos Positivos": 11,
+      "Falsos Negativos": 15,
+      "PR-AUC treino": 0.9999999999999999,
+      "Tempo de treino (s)": 20.9
+    },
+    "Regressão Logística": {
+      "Acurácia": 0.9733368578729403,
+      "Precisão": 0.05349276274386407,
+      "Recall": 0.9042553191489362,
+      "F1": 0.10101010101010101,
+      "AUC-ROC": 0.9821890056963183,
+      "PR-AUC": 0.7876391433077917,
+      "Especificidade": 0.9734514836454785,
+      "Verdadeiros Positivos": 85,
+      "Verdadeiros Negativos": 55147,
+      "Falsos Positivos": 1504,
+      "Falsos Negativos": 9,
+      "PR-AUC treino": 0.728662606398558,
+      "Tempo de treino (s)": 3.3
+    }
+  },
+  "validacao_cruzada": {
+    "XGBoost": {
+      "PR-AUC (média)": 0.8481774201034951,
+      "PR-AUC (desvio)": 0.02757422894244315,
+      "Recall (média)": 0.8253684210526316,
+      "Precisão (média)": 0.9130095177612325,
+      "Tempo (s)": 73.0
+    },
+    "Random Forest": {
+      "PR-AUC (média)": 0.839676411665344,
+      "PR-AUC (desvio)": 0.034468560201074666,
+      "Recall (média)": 0.7962456140350878,
+      "Precisão (média)": 0.9247133546011561,
+      "Tempo (s)": 538.2
+    },
+    "LightGBM": {
+      "PR-AUC (média)": 0.8243219980360873,
+      "PR-AUC (desvio)": 0.0319417677765834,
+      "Recall (média)": 0.8227017543859649,
+      "Precisão (média)": 0.8793613062420922,
+      "Tempo (s)": 55.5
+    },
+    "Regressão Logística": {
+      "PR-AUC (média)": 0.7546149045365809,
+      "PR-AUC (desvio)": 0.027389989199120054,
+      "Recall (média)": 0.9073333333333334,
+      "Precisão (média)": 0.05748076656846568,
+      "Tempo (s)": 13.0
+    }
+  },
+  "ajuste": {
+    "pr_auc_cv_padrao": 0.819932948484979,
+    "pr_auc_cv_padrao_desvio": 0.07600158736387709,
+    "metodo": "Random Search",
+    "pr_auc_cv_busca": 0.8410117865154295,
+    "pr_auc_cv_busca_desvio": 0.06206200078246345,
+    "pr_auc_treino_busca": 1.0000000000000002,
+    "combinacoes": 20,
+    "tempo_busca_min": 30.4,
+    "melhores_hiperparametros": {
+      "colsample_bytree": 0.8566223936114975,
+      "learning_rate": 0.15695770551890384,
+      "max_depth": 4,
+      "min_child_weight": 7,
+      "n_estimators": 454,
+      "scale_pos_weight": 24.462604401095707,
+      "subsample": 0.7975182385457563
+    },
+    "usar_ajustado": true
+  },
+  "treino_final": {
+    "transacoes": 226980,
+    "fraudes": 378
+  }
+}

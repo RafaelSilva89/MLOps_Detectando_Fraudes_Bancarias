@@ -1,0 +1,52 @@
+# ==============================================================================
+# docker-compose.airflow.yaml: sobe o Airflow completo (orquestração), como no curso.
+#
+#   docker compose -f docker-compose.airflow.yaml build
+#   docker compose -f docker-compose.airflow.yaml up -d
+#   -> http://localhost:8080  (usuário admin / senha admin)
+#   docker compose -f docker-compose.airflow.yaml down
+#
+# Serviços:
+#   postgres -> banco de metadados do Airflow (execuções, estados das tarefas)
+#   dind     -> "Docker in Docker": um Docker isolado onde a tarefa build_app_image monta a imagem
+#   airflow  -> scheduler (dispara as tarefas) + webserver (interface), com o projeto dentro
+# ==============================================================================
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    networks: [backend]
+
+  dind:
+    image: docker:24.0.5-dind
+    privileged: true
+    expose: ["2375"]
+    environment:
+      - DOCKER_TLS_CERTDIR=
+    networks: [backend]
+
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    restart: always
+    depends_on: [postgres, dind]
+    ports: ["8080:8080"]
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__DAGS_FOLDER=/home/airflow/fraud_detection/dags
+      - DOCKER_HOST=tcp://dind:2375
+    networks: [backend]
+    command: bash -c "
+      airflow db migrate &&
+      airflow users create --username admin --password admin --firstname admin --lastname admin --role Admin --email admin@example.com &&
+      (airflow scheduler &) &&
+      airflow webserver"
+
+networks:
+  backend:

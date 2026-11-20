@@ -1,0 +1,80 @@
+{
+  "valido": true,
+  "linhas": 284807,
+  "checagens": [
+    {
+      "checagem": "colunas obrigatórias",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "31 colunas presentes"
+    },
+    {
+      "checagem": "tipos numéricos",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "todas numéricas"
+    },
+    {
+      "checagem": "base não vazia",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "284,807 linhas"
+    },
+    {
+      "checagem": "sem valores nulos",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "0 nulos"
+    },
+    {
+      "checagem": "sem valores infinitos",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "0 infinitos"
+    },
+    {
+      "checagem": "Timestamp >= 0",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "mínimo = 0.0"
+    },
+    {
+      "checagem": "valor da transação >= 0",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "mínimo = 0.0"
+    },
+    {
+      "checagem": "duplicatas (removidas no próximo estágio)",
+      "ok": true,
+      "bloqueante": false,
+      "detalhe": "1081 linhas duplicadas"
+    },
+    {
+      "checagem": "alvo binário {0, 1}",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "classes encontradas: [0, 1]"
+    },
+    {
+      "checagem": "as duas classes presentes",
+      "ok": true,
+      "bloqueante": true,
+      "detalhe": "classes encontradas: [0, 1]"
+    },
+    {
+      "checagem": "taxa de fraude entre 0,01% e 5%",
+      "ok": true,
+      "bloqueante": false,
+      "detalhe": "taxa = 0.1727%"
+    }
+  ],
+  "resumo": {
+    "linhas": 284807,
+    "colunas": 31,
+    "duplicatas": 1081,
+    "janela_horas": 48.0,
+    "fraudes": 492,
+    "taxa_fraude": 0.001727
+  }
+}

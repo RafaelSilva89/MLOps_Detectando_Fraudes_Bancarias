@@ -1,0 +1,322 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1250" viewBox="0 0 1500 1250" role="img" aria-labelledby="t d" font-family="Segoe UI, Arial, Helvetica, sans-serif">
+<title id="t">Arquitetura MLOps · Detecção de fraudes em transferências bancárias</title>
+<desc id="d">Arquitetura implementada no projeto mlops_detectando_fraudes_bancarias. O pipeline do DVC (dvc.yaml) tem 8 estágios: load_data, validate_data, preprocess_data, engineer_features, train, decision_policy, evaluate e monitor, cada um um módulo de src/ que lê o que o anterior gravou em data/, models/, artifacts/ e metrics/. Os estágios de treino, decisão, avaliação e monitoramento registram parâmetros, métricas e o modelo numa run do MLflow; register_model cria uma versão no Model Registry com o alias champion. A inferência (FraudPredictor) valida a entrada, cria as features, calcula a probabilidade e aplica a regra de decisão; é usada pela CLI predict.py e pelo app Flask, empacotado numa imagem Docker. O Airflow orquestra os estágios do DVC, o registro e o build da imagem. Git e DVC versionam código, parâmetros, dados e modelos; pytest e GitHub Actions testam; params.yaml, config.py e .env centralizam a configuração; o logging grava logs/pipeline.log.</desc>
+<defs>
+  <marker id="aBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0078D4"/></marker>
+  <marker id="aDark" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#243A5E"/></marker>
+  <marker id="aGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#107C10"/></marker>
+  <marker id="aPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8661C5"/></marker>
+  <marker id="aOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#CA5010"/></marker>
+</defs>
+
+<rect x="0" y="0" width="1500" height="1250" fill="#FFFFFF"/>
+
+<!-- ===================== título ===================== -->
+<text x="750" y="36" font-size="21" font-weight="bold" fill="#243A5E" text-anchor="middle">Detecção de Fraudes em Transferências Bancárias · Arquitetura MLOps implementada</text>
+<text x="750" y="60" font-size="14" fill="#505050" text-anchor="middle">dados versionados → validação → pré-processamento → features → treino → regra de decisão → avaliação → monitoramento → registro → inferência (CLI · Flask · Docker)</text>
+
+<!-- ===================== estrutura de pastas ===================== -->
+<rect x="20" y="85" width="300" height="900" rx="6" fill="#F7F7F7" stroke="#7A7A7A" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="36" y="110" font-size="15" font-weight="bold" fill="#3B3B3B">Estrutura do projeto</text>
+<g font-family="Consolas, 'Courier New', monospace" font-size="11.5" fill="#3B3B3B">
+  <text x="34" y="136" font-weight="bold" fill="#243A5E">mlops_detectando_fraudes_bancarias/</text>
+  <text x="34" y="156">├─ <tspan fill="#0078D4" font-weight="bold">data/</tspan></text>
+  <text x="34" y="173">│  ├─ external/  <tspan fill="#7A7A7A">zip original (.dvc)</tspan></text>
+  <text x="34" y="190">│  ├─ raw/       <tspan fill="#7A7A7A">raw.csv</tspan></text>
+  <text x="34" y="207">│  ├─ preprocessed/ <tspan fill="#7A7A7A">split</tspan></text>
+  <text x="34" y="224">│  └─ processed/ <tspan fill="#7A7A7A">30 features</tspan></text>
+  <text x="34" y="244">├─ <tspan fill="#243A5E" font-weight="bold">src/</tspan></text>
+  <text x="34" y="261">│  ├─ __init__.py   <tspan fill="#7A7A7A">logging</tspan></text>
+  <text x="34" y="278">│  ├─ config.py     <tspan fill="#7A7A7A">caminhos</tspan></text>
+  <text x="34" y="295">│  ├─ tracking.py   <tspan fill="#7A7A7A">MLflow</tspan></text>
+  <text x="34" y="312">│  ├─ utils.py</text>
+  <text x="34" y="329">│  ├─ data_loading/</text>
+  <text x="34" y="346">│  ├─ data_validation/</text>
+  <text x="34" y="363">│  ├─ data_preprocessing/</text>
+  <text x="34" y="380">│  ├─ feature_engineering/</text>
+  <text x="34" y="397">│  ├─ model_training/</text>
+  <text x="34" y="414">│  ├─ decision_policy/</text>
+  <text x="34" y="431">│  ├─ model_evaluation/</text>
+  <text x="34" y="448">│  ├─ monitoring/</text>
+  <text x="34" y="465">│  ├─ model_registry/</text>
+  <text x="34" y="482">│  └─ inference/</text>
+  <text x="34" y="502">├─ <tspan fill="#107C10" font-weight="bold">models/</tspan>    <tspan fill="#7A7A7A">.joblib + card</tspan></text>
+  <text x="34" y="519">├─ <tspan fill="#107C10" font-weight="bold">artifacts/</tspan> <tspan fill="#7A7A7A">regra, run_id</tspan></text>
+  <text x="34" y="536">├─ <tspan fill="#8661C5" font-weight="bold">metrics/</tspan>   <tspan fill="#7A7A7A">JSON por estágio</tspan></text>
+  <text x="34" y="553">├─ app/       <tspan fill="#7A7A7A">Flask + HTML</tspan></text>
+  <text x="34" y="570">├─ <tspan fill="#CA5010" font-weight="bold">dags/</tspan>      <tspan fill="#7A7A7A">Airflow</tspan></text>
+  <text x="34" y="587">├─ tests/     <tspan fill="#7A7A7A">unit + integration</tspan></text>
+  <text x="34" y="604">├─ docs/      <tspan fill="#7A7A7A">este diagrama</tspan></text>
+  <text x="34" y="621">├─ notebooks/ <tspan fill="#7A7A7A">pesquisa x produção</tspan></text>
+  <text x="34" y="638">├─ logs/      <tspan fill="#7A7A7A">pipeline.log</tspan></text>
+  <text x="34" y="658">├─ params.yaml</text>
+  <text x="34" y="675">├─ dvc.yaml · dvc.lock</text>
+  <text x="34" y="692">├─ pyproject.toml</text>
+  <text x="34" y="709">├─ .env.example</text>
+  <text x="34" y="726">├─ Dockerfile</text>
+  <text x="34" y="743">├─ Dockerfile.airflow</text>
+  <text x="34" y="760">├─ docker-compose.airflow.yaml</text>
+  <text x="34" y="777">├─ .github/workflows/tests.yml</text>
+  <text x="34" y="794">└─ README.md</text>
+</g>
+<g font-size="12" fill="#505050">
+  <text x="34" y="830" font-weight="bold" fill="#3B3B3B">Legenda das setas</text>
+  <line x1="36" y1="852" x2="86" y2="852" stroke="#0078D4" stroke-width="2.2" marker-end="url(#aBlue)"/><text x="96" y="856">fluxo de dados (estágios)</text>
+  <line x1="36" y1="876" x2="86" y2="876" stroke="#8661C5" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#aPurple)"/><text x="96" y="880">registro no MLflow</text>
+  <line x1="36" y1="900" x2="86" y2="900" stroke="#107C10" stroke-width="2.2" marker-end="url(#aGreen)"/><text x="96" y="904">modelo / versão do modelo</text>
+  <line x1="36" y1="924" x2="86" y2="924" stroke="#CA5010" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#aOrange)"/><text x="96" y="928">orquestração (Airflow)</text>
+  <line x1="36" y1="948" x2="86" y2="948" stroke="#243A5E" stroke-width="2" marker-end="url(#aDark)"/><text x="96" y="952">requisição / resposta</text>
+</g>
+
+<!-- ===================== pipeline do DVC ===================== -->
+<rect x="340" y="85" width="820" height="420" rx="6" fill="#F3F8FD" stroke="#0078D4" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="356" y="110" font-size="15" font-weight="bold" fill="#0078D4">Pipeline de treino · dvc.yaml  (dvc repro)</text>
+<text x="1144" y="110" font-size="12" fill="#505050" text-anchor="end">cada estágio = um módulo de src/ · parâmetros vêm do params.yaml</text>
+
+<!-- linha 1 -->
+<g font-size="12">
+  <rect x="362" y="125" width="165" height="92" rx="8" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.6"/>
+  <text x="374" y="146" font-weight="bold" fill="#243A5E">1 · load_data</text>
+  <text x="374" y="164" font-size="10.5" fill="#505050">Data Ingestion</text>
+  <text x="374" y="182" font-size="10.5" fill="#7A7A7A">lê o zip versionado</text>
+  <text x="374" y="205" font-size="10.5" fill="#0078D4" font-family="Consolas, monospace">→ data/raw/raw.csv</text>
+
+  <rect x="565" y="125" width="165" height="92" rx="8" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.6"/>
+  <text x="577" y="146" font-weight="bold" fill="#243A5E">2 · validate_data</text>
+  <text x="577" y="164" font-size="10.5" fill="#505050">Data Validation</text>
+  <text x="577" y="182" font-size="10.5" fill="#7A7A7A">colunas, tipos, nulos, alvo</text>
+  <text x="577" y="198" font-size="10.5" fill="#C50F1F">falhou? o pipeline PARA</text>
+  <text x="577" y="212" font-size="10.5" fill="#8661C5" font-family="Consolas, monospace">→ data_validation.json</text>
+
+  <rect x="768" y="125" width="165" height="92" rx="8" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.6"/>
+  <text x="780" y="146" font-weight="bold" fill="#243A5E">3 · preprocess_data</text>
+  <text x="780" y="164" font-size="10.5" fill="#505050">Data Preprocessing</text>
+  <text x="780" y="182" font-size="10.5" fill="#7A7A7A">−1.081 duplicatas · split</text>
+  <text x="780" y="196" font-size="10.5" fill="#7A7A7A">60/20/20 estratificado</text>
+  <text x="780" y="212" font-size="10.5" fill="#0078D4" font-family="Consolas, monospace">→ data/preprocessed/</text>
+
+  <rect x="971" y="125" width="165" height="92" rx="8" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.6"/>
+  <text x="983" y="146" font-weight="bold" fill="#243A5E">4 · engineer_features</text>
+  <text x="983" y="164" font-size="10.5" fill="#505050">Feature Engineering</text>
+  <text x="983" y="182" font-size="10.5" fill="#7A7A7A">+ hora_do_dia</text>
+  <text x="983" y="196" font-size="10.5" fill="#7A7A7A">− Timestamp (vazamento)</text>
+  <text x="983" y="212" font-size="10.5" fill="#0078D4" font-family="Consolas, monospace">→ data/processed/</text>
+</g>
+<line x1="527" y1="171" x2="563" y2="171" stroke="#0078D4" stroke-width="2.2" marker-end="url(#aBlue)"/>
+<line x1="730" y1="171" x2="766" y2="171" stroke="#0078D4" stroke-width="2.2" marker-end="url(#aBlue)"/>
+<line x1="933" y1="171" x2="969" y2="171" stroke="#0078D4" stroke-width="2.2" marker-end="url(#aBlue)"/>
+<line x1="1053" y1="217" x2="1053" y2="290" stroke="#0078D4" stroke-width="2.2" marker-end="url(#aBlue)"/>
+<text x="1046" y="282" font-size="10.5" fill="#505050" text-anchor="end">treino + validação</text>
+<!-- estágios 5 a 8 registram na run do MLflow (desenhadas antes do quadro de saídas, que as cobre) -->
+<line x1="1053" y1="396" x2="700" y2="563" stroke="#8661C5" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#aPurple)"/>
+<line x1="850" y1="396" x2="640" y2="563" stroke="#8661C5" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#aPurple)"/>
+<line x1="647" y1="396" x2="560" y2="563" stroke="#8661C5" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#aPurple)"/>
+<line x1="444" y1="396" x2="470" y2="563" stroke="#8661C5" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#aPurple)"/>
+
+<!-- linha 2 (da direita para a esquerda) -->
+<g font-size="12">
+  <rect x="971" y="292" width="165" height="104" rx="8" fill="#FFFFFF" stroke="#107C10" stroke-width="1.8"/>
+  <text x="983" y="313" font-weight="bold" fill="#243A5E">5 · train</text>
+  <text x="983" y="331" font-size="10.5" fill="#505050">Model Training</text>
+  <text x="983" y="348" font-size="10.5" fill="#7A7A7A">4 algoritmos · CV 5 dobras</text>
+  <text x="983" y="362" font-size="10.5" fill="#7A7A7A">Random Search (20) · peso</text>
+  <text x="983" y="376" font-size="10.5" fill="#7A7A7A">da classe · PR-AUC</text>
+  <text x="983" y="390" font-size="10.5" fill="#107C10" font-family="Consolas, monospace">→ models/*.joblib</text>
+
+  <rect x="768" y="292" width="165" height="104" rx="8" fill="#FFFFFF" stroke="#107C10" stroke-width="1.8"/>
+  <text x="780" y="313" font-weight="bold" fill="#243A5E">6 · decision_policy</text>
+  <text x="780" y="331" font-size="10.5" fill="#505050">Regra de decisão</text>
+  <text x="780" y="348" font-size="10.5" fill="#7A7A7A">limiar de custo mínimo</text>
+  <text x="780" y="362" font-size="10.5" fill="#7A7A7A">em R$ + regra de valor</text>
+  <text x="780" y="376" font-size="10.5" fill="#7A7A7A">(só na validação)</text>
+  <text x="780" y="390" font-size="10.5" fill="#107C10" font-family="Consolas, monospace">→ decision_policy.json</text>
+
+  <rect x="565" y="292" width="165" height="104" rx="8" fill="#FFFFFF" stroke="#107C10" stroke-width="1.8"/>
+  <text x="577" y="313" font-weight="bold" fill="#243A5E">7 · evaluate</text>
+  <text x="577" y="331" font-size="10.5" fill="#505050">Model Evaluation</text>
+  <text x="577" y="348" font-size="10.5" fill="#7A7A7A">teste aberto 1 única vez</text>
+  <text x="577" y="362" font-size="10.5" fill="#7A7A7A">PR-AUC · R$ · bootstrap</text>
+  <text x="577" y="376" font-size="10.5" fill="#7A7A7A">→ SLA de produção</text>
+  <text x="577" y="390" font-size="10.5" fill="#107C10" font-family="Consolas, monospace">→ model_card.json</text>
+
+  <rect x="362" y="292" width="165" height="104" rx="8" fill="#FFFFFF" stroke="#107C10" stroke-width="1.8"/>
+  <text x="374" y="313" font-weight="bold" fill="#243A5E">8 · monitor</text>
+  <text x="374" y="331" font-size="10.5" fill="#505050">Monitoring</text>
+  <text x="374" y="348" font-size="10.5" fill="#7A7A7A">PSI / K-S dia 2 x dia 1</text>
+  <text x="374" y="362" font-size="10.5" fill="#7A7A7A">validação temporal 36/12 h</text>
+  <text x="374" y="376" font-size="10.5" fill="#7A7A7A">lotes de 4 h x SLA</text>
+  <text x="374" y="390" font-size="10.5" fill="#8661C5" font-family="Consolas, monospace">→ monitoring.json</text>
+</g>
+<line x1="971" y1="344" x2="935" y2="344" stroke="#107C10" stroke-width="2.2" marker-end="url(#aGreen)"/>
+<line x1="768" y1="344" x2="732" y2="344" stroke="#107C10" stroke-width="2.2" marker-end="url(#aGreen)"/>
+<line x1="565" y1="344" x2="529" y2="344" stroke="#107C10" stroke-width="2.2" marker-end="url(#aGreen)"/>
+<!-- o teste só chega ao estágio 7 -->
+<path d="M 990 217 C 960 262, 700 240, 647 290" fill="none" stroke="#C50F1F" stroke-width="1.6" stroke-dasharray="4,3" marker-end="url(#aDark)"/>
+<text x="640" y="240" font-size="10.5" fill="#C50F1F">test.csv: só o estágio 7 lê (sem vazamento)</text>
+
+<!-- saídas versionadas -->
+<g font-size="11">
+  <rect x="362" y="412" width="774" height="80" rx="6" fill="#FFFFFF" stroke="#C8C8C8" stroke-width="1"/>
+  <text x="374" y="432" font-weight="bold" fill="#3B3B3B" font-size="12">Saídas versionadas (o DVC guarda o hash de cada uma no dvc.lock)</text>
+  <text x="374" y="452" fill="#107C10" font-family="Consolas, monospace">models/model.joblib (treino+validação) · models/model_validation.joblib (só treino) · models/model_card.json</text>
+  <text x="374" y="468" fill="#107C10" font-family="Consolas, monospace">artifacts/decision_policy.json (limiar + regra de valor) · artifacts/mlflow_run.json (run_id)</text>
+  <text x="374" y="484" fill="#8661C5" font-family="Consolas, monospace">metrics/*.json → dvc metrics show · dvc exp show (comparar experimentos)</text>
+</g>
+
+<!-- ===================== MLflow ===================== -->
+<rect x="340" y="525" width="820" height="180" rx="6" fill="#F7F4FC" stroke="#8661C5" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="356" y="550" font-size="15" font-weight="bold" fill="#8661C5">Experiment Tracking + Model Registry · MLflow (sqlite:///mlflow.db)</text>
+
+<rect x="362" y="565" width="360" height="125" rx="8" fill="#FFFFFF" stroke="#8661C5" stroke-width="1.6"/>
+<text x="376" y="587" font-size="13" font-weight="bold" fill="#243A5E">Experimento "deteccao_fraudes" · 1 run por pipeline</text>
+<text x="376" y="607" font-size="11" fill="#505050">5 · train abre a run: parâmetros, CV, modelo + assinatura</text>
+<text x="376" y="624" font-size="11" fill="#505050">6 · decision_policy: limiar, regra, decision_policy.json</text>
+<text x="376" y="641" font-size="11" fill="#505050">7 · evaluate: test_pr_auc, economia em R$, SLA, model card</text>
+<text x="376" y="658" font-size="11" fill="#505050">8 · monitor: PR-AUC temporal, lotes abaixo do SLA, PSI</text>
+<text x="376" y="678" font-size="10.5" fill="#7A7A7A">dvc exp run → runs filhas de uma run "mãe" (tag dvc_exp)</text>
+
+<rect x="752" y="595" width="150" height="66" rx="8" fill="#FFFFFF" stroke="#243A5E" stroke-width="1.6"/>
+<text x="827" y="619" font-size="12" font-weight="bold" fill="#243A5E" text-anchor="middle">register_model.py</text>
+<text x="827" y="637" font-size="10.5" fill="#505050" text-anchor="middle">melhor run (test_pr_auc)</text>
+<text x="827" y="652" font-size="10.5" fill="#505050" text-anchor="middle">→ nova versão</text>
+
+<rect x="930" y="565" width="206" height="125" rx="8" fill="#FFFFFF" stroke="#107C10" stroke-width="1.8"/>
+<text x="1033" y="587" font-size="13" font-weight="bold" fill="#107C10" text-anchor="middle">Model Registry</text>
+<text x="1033" y="606" font-size="11.5" fill="#243A5E" text-anchor="middle" font-family="Consolas, monospace">fraude_xgboost</text>
+<rect x="948" y="618" width="44" height="24" rx="4" fill="#E8F3E8" stroke="#107C10"/><text x="970" y="635" font-size="11" fill="#107C10" text-anchor="middle">v1</text>
+<rect x="1000" y="618" width="44" height="24" rx="4" fill="#E8F3E8" stroke="#107C10"/><text x="1022" y="635" font-size="11" fill="#107C10" text-anchor="middle">v2</text>
+<rect x="1052" y="618" width="66" height="24" rx="4" fill="#107C10"/><text x="1085" y="635" font-size="11" fill="#FFFFFF" text-anchor="middle" font-weight="bold">v3 …</text>
+<text x="1085" y="660" font-size="11" fill="#107C10" text-anchor="middle" font-weight="bold">@champion</text>
+<text x="1033" y="680" font-size="10" fill="#7A7A7A" text-anchor="middle">rollback = mover o alias</text>
+
+<line x1="722" y1="628" x2="750" y2="628" stroke="#8661C5" stroke-width="2" marker-end="url(#aPurple)"/>
+<line x1="902" y1="628" x2="928" y2="628" stroke="#107C10" stroke-width="2.2" marker-end="url(#aGreen)"/>
+
+<!-- ===================== inferência ===================== -->
+<rect x="340" y="725" width="820" height="260" rx="6" fill="#F4FAF4" stroke="#107C10" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="356" y="750" font-size="15" font-weight="bold" fill="#107C10">Inferência · src/inference/predict.py (FraudPredictor)</text>
+<text x="1144" y="750" font-size="12" fill="#505050" text-anchor="end">as MESMAS funções do treino → sem training-serving skew</text>
+
+<!-- origens do modelo -->
+<rect x="362" y="768" width="200" height="56" rx="8" fill="#FFFFFF" stroke="#107C10" stroke-width="1.4"/>
+<text x="374" y="788" font-size="11.5" font-weight="bold" fill="#243A5E">origem local (padrão, Docker)</text>
+<text x="374" y="806" font-size="10.5" fill="#505050" font-family="Consolas, monospace">models/model.joblib +</text>
+<text x="374" y="819" font-size="10.5" fill="#505050" font-family="Consolas, monospace">artifacts/decision_policy.json</text>
+<rect x="362" y="834" width="200" height="50" rx="8" fill="#FFFFFF" stroke="#107C10" stroke-width="1.4"/>
+<text x="374" y="854" font-size="11.5" font-weight="bold" fill="#243A5E">origem registry</text>
+<text x="374" y="872" font-size="10.5" fill="#505050" font-family="Consolas, monospace">models:/fraude_xgboost@champion</text>
+<path d="M 1033 690 L 1033 714 L 330 714 L 330 859 L 359 859" fill="none" stroke="#107C10" stroke-width="1.6" stroke-dasharray="5,4" marker-end="url(#aGreen)"/>
+
+<!-- cadeia de previsão -->
+<rect x="590" y="768" width="546" height="116" rx="8" fill="#FFFFFF" stroke="#107C10" stroke-width="1.8"/>
+<text x="606" y="790" font-size="13" font-weight="bold" fill="#243A5E">FraudPredictor.predict(transações no formato bruto)</text>
+<g font-size="11">
+  <rect x="606" y="804" width="118" height="44" rx="6" fill="#F3F8FD" stroke="#0078D4"/><text x="665" y="823" text-anchor="middle" fill="#243A5E">validate_dataframe</text><text x="665" y="838" text-anchor="middle" fill="#7A7A7A" font-size="10">erro → HTTP 400</text>
+  <rect x="738" y="804" width="118" height="44" rx="6" fill="#F3F8FD" stroke="#0078D4"/><text x="797" y="823" text-anchor="middle" fill="#243A5E">build_features</text><text x="797" y="838" text-anchor="middle" fill="#7A7A7A" font-size="10">+ hora_do_dia</text>
+  <rect x="870" y="804" width="118" height="44" rx="6" fill="#E8F3E8" stroke="#107C10"/><text x="929" y="823" text-anchor="middle" fill="#243A5E">predict_proba</text><text x="929" y="838" text-anchor="middle" fill="#7A7A7A" font-size="10">probabilidade</text>
+  <rect x="1002" y="804" width="118" height="44" rx="6" fill="#E8F3E8" stroke="#107C10"/><text x="1061" y="823" text-anchor="middle" fill="#243A5E">aplicar_regra</text><text x="1061" y="838" text-anchor="middle" fill="#7A7A7A" font-size="10">revisar / liberar</text>
+</g>
+<line x1="724" y1="826" x2="736" y2="826" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<line x1="856" y1="826" x2="868" y2="826" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<line x1="988" y1="826" x2="1000" y2="826" stroke="#107C10" stroke-width="2" marker-end="url(#aGreen)"/>
+<text x="606" y="872" font-size="10.5" fill="#505050">saída: probabilidade_fraude + decisao, para cada transação</text>
+<line x1="562" y1="796" x2="588" y2="810" stroke="#107C10" stroke-width="2" marker-end="url(#aGreen)"/>
+<line x1="562" y1="859" x2="588" y2="845" stroke="#107C10" stroke-width="2" marker-end="url(#aGreen)"/>
+
+<!-- consumidores -->
+<g font-size="11">
+  <rect x="362" y="904" width="230" height="66" rx="8" fill="#FFFFFF" stroke="#243A5E" stroke-width="1.4"/>
+  <text x="374" y="924" font-size="12" font-weight="bold" fill="#243A5E">CLI (lotes)</text>
+  <text x="374" y="942" fill="#505050" font-family="Consolas, monospace" font-size="10.5">python -m src.inference.predict</text>
+  <text x="374" y="957" fill="#505050" font-family="Consolas, monospace" font-size="10.5">  --input lote.csv --output prev.csv</text>
+
+  <rect x="612" y="904" width="250" height="66" rx="8" fill="#FFFFFF" stroke="#243A5E" stroke-width="1.4"/>
+  <text x="624" y="924" font-size="12" font-weight="bold" fill="#243A5E">App Flask · app/main.py</text>
+  <text x="624" y="942" fill="#505050">GET / · POST /upload (CSV → tabela)</text>
+  <text x="624" y="957" fill="#505050">POST /predict (JSON) · GET /health</text>
+
+  <rect x="882" y="904" width="254" height="66" rx="8" fill="#E8F1FB" stroke="#0078D4" stroke-width="1.6"/>
+  <text x="894" y="924" font-size="12" font-weight="bold" fill="#0078D4">Imagem Docker "fraude-api"</text>
+  <text x="894" y="942" fill="#505050">python:3.13-slim + gunicorn :5001</text>
+  <text x="894" y="957" fill="#505050">docker run -p 5001:5001 fraude-api</text>
+</g>
+<line x1="700" y1="884" x2="477" y2="902" stroke="#243A5E" stroke-width="1.8" marker-end="url(#aDark)"/>
+<line x1="760" y1="884" x2="737" y2="902" stroke="#243A5E" stroke-width="1.8" marker-end="url(#aDark)"/>
+<line x1="862" y1="937" x2="880" y2="937" stroke="#243A5E" stroke-width="1.8" marker-end="url(#aDark)"/>
+
+<!-- ===================== coluna direita ===================== -->
+<!-- Airflow -->
+<rect x="1180" y="85" width="300" height="330" rx="6" fill="#FDF6F2" stroke="#CA5010" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="1196" y="110" font-size="15" font-weight="bold" fill="#CA5010">Orquestração · Apache Airflow</text>
+<text x="1196" y="130" font-size="11" fill="#505050" font-family="Consolas, monospace">dags/ml_pipeline_dag.py · @monthly</text>
+<g font-size="10.5" font-family="Consolas, monospace" fill="#243A5E">
+  <rect x="1200" y="142" width="260" height="20" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="1210" y="156">dvc_load_data</text>
+  <rect x="1200" y="167" width="260" height="20" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="1210" y="181">dvc_validate_data</text>
+  <rect x="1200" y="192" width="260" height="20" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="1210" y="206">dvc_preprocess_data</text>
+  <rect x="1200" y="217" width="260" height="20" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="1210" y="231">dvc_engineer_features</text>
+  <rect x="1200" y="242" width="260" height="20" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="1210" y="256">dvc_train</text>
+  <rect x="1200" y="267" width="260" height="20" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="1210" y="281">dvc_decision_policy</text>
+  <rect x="1200" y="292" width="260" height="20" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="1210" y="306">dvc_evaluate</text>
+  <rect x="1200" y="317" width="260" height="20" rx="4" fill="#FFFFFF" stroke="#CA5010"/><text x="1210" y="331">dvc_monitor</text>
+  <rect x="1200" y="342" width="260" height="20" rx="4" fill="#F3EDFB" stroke="#8661C5"/><text x="1210" y="356">register_model</text>
+  <rect x="1200" y="367" width="260" height="20" rx="4" fill="#E8F1FB" stroke="#0078D4"/><text x="1210" y="381">build_app_image (docker build)</text>
+</g>
+<text x="1196" y="405" font-size="10.5" fill="#505050">docker-compose: Postgres + Docker-in-Docker + Airflow</text>
+<path d="M 1200 270 L 1162 270" fill="none" stroke="#CA5010" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#aOrange)"/>
+<text x="1060" y="262" font-size="10" fill="#CA5010" font-weight="bold">dvc repro &lt;estágio&gt;</text>
+<path d="M 1200 352 L 1168 352 L 1168 600 L 1162 600" fill="none" stroke="#CA5010" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#aOrange)"/>
+<path d="M 1200 377 L 1174 377 L 1174 937 L 1138 937" fill="none" stroke="#CA5010" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#aOrange)"/>
+
+<!-- Versionamento -->
+<rect x="1180" y="430" width="300" height="160" rx="6" fill="#F7F7F7" stroke="#243A5E" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="1196" y="455" font-size="15" font-weight="bold" fill="#243A5E">Versionamento</text>
+<g font-size="11" fill="#505050">
+  <text x="1196" y="477"><tspan font-weight="bold" fill="#243A5E">Git:</tspan> código, params.yaml, dvc.yaml,</text>
+  <text x="1196" y="493">dvc.lock, metrics/*.json, *.dvc</text>
+  <text x="1196" y="515"><tspan font-weight="bold" fill="#243A5E">DVC (cache):</tspan> zip, CSVs e modelos;</text>
+  <text x="1196" y="531">git checkout + dvc checkout = volta tudo</text>
+  <text x="1196" y="553"><tspan font-weight="bold" fill="#243A5E">Experimentos:</tspan></text>
+  <text x="1196" y="569" font-family="Consolas, monospace" font-size="10.5">dvc exp run -S tune.n_iter=5</text>
+  <text x="1196" y="583" font-family="Consolas, monospace" font-size="10.5">dvc exp show</text>
+</g>
+
+<!-- Qualidade -->
+<rect x="1180" y="605" width="300" height="175" rx="6" fill="#F7F7F7" stroke="#243A5E" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="1196" y="630" font-size="15" font-weight="bold" fill="#243A5E">Testes · qualidade</text>
+<g font-size="11" fill="#505050">
+  <text x="1196" y="652"><tspan font-weight="bold" fill="#243A5E">tests/unit/</tspan>: validação, split, features,</text>
+  <text x="1196" y="668">métricas, regra, modelos, PSI, inferência</text>
+  <text x="1196" y="690"><tspan font-weight="bold" fill="#243A5E">tests/integration/</tspan>: os 8 estágios +</text>
+  <text x="1196" y="706">MLflow + registry + Flask numa pasta</text>
+  <text x="1196" y="722">temporária, com base sintética</text>
+  <text x="1196" y="744"><tspan font-weight="bold" fill="#243A5E">CI:</tspan> .github/workflows/tests.yml</text>
+  <text x="1196" y="760">roda o pytest a cada push</text>
+</g>
+
+<!-- Configuração e logs -->
+<rect x="1180" y="795" width="300" height="190" rx="6" fill="#F7F7F7" stroke="#243A5E" stroke-width="2" stroke-dasharray="8,5"/>
+<text x="1196" y="820" font-size="15" font-weight="bold" fill="#243A5E">Configuração · logs · monitoramento</text>
+<g font-size="11" fill="#505050">
+  <text x="1196" y="842"><tspan font-weight="bold" fill="#243A5E">params.yaml</tspan>: sementes, split, busca,</text>
+  <text x="1196" y="858">custo da revisão, bootstrap, SLA</text>
+  <text x="1196" y="878"><tspan font-weight="bold" fill="#243A5E">src/config.py</tspan>: caminhos e colunas</text>
+  <text x="1196" y="898"><tspan font-weight="bold" fill="#243A5E">.env</tspan>: MLFLOW_TRACKING_URI (fora do Git)</text>
+  <text x="1196" y="918"><tspan font-weight="bold" fill="#243A5E">logs/pipeline.log</tspan>: cada estágio, com</text>
+  <text x="1196" y="934">horário, módulo e nível</text>
+  <text x="1196" y="956"><tspan font-weight="bold" fill="#243A5E">SLA</tspan> (do bootstrap): PR-AUC e recall</text>
+  <text x="1196" y="972">mínimos por lote · PSI &gt; 0,25 = alerta</text>
+</g>
+
+<!-- ===================== passo a passo ===================== -->
+<rect x="20" y="1005" width="1460" height="225" rx="6" fill="#FFFFFF" stroke="#243A5E" stroke-width="1.6"/>
+<text x="38" y="1032" font-size="15" font-weight="bold" fill="#243A5E">Passo a passo</text>
+<g font-size="12.5" fill="#3B3B3B">
+  <text x="38" y="1060"><tspan font-weight="bold" fill="#0078D4">1 Ambiente:</tspan> pip install -e ".[dev]" instala as versões fixadas no pyproject.toml; dvc pull (ou o zip) traz a base versionada.</text>
+  <text x="38" y="1084"><tspan font-weight="bold" fill="#0078D4">2 Dados:</tspan> load_data → validate_data (bloqueia dados ruins) → preprocess_data (sem duplicatas, 60/20/20 estratificado) → engineer_features (hora_do_dia).</text>
+  <text x="38" y="1108"><tspan font-weight="bold" fill="#107C10">3 Treino:</tspan> 4 algoritmos com peso da classe, CV de 5 dobras pela PR-AUC, Random Search no vencedor; modelo final retreinado em treino + validação.</text>
+  <text x="38" y="1132"><tspan font-weight="bold" fill="#107C10">4 Decisão e avaliação:</tspan> limiar de custo mínimo em R$ e regra de valor (validação); teste aberto uma vez; bootstrap define o SLA; model card.</text>
+  <text x="38" y="1156"><tspan font-weight="bold" fill="#8661C5">5 Rastreio e registro:</tspan> tudo vai para uma run do MLflow; register_model cria a versão de fraude_xgboost e move o alias @champion.</text>
+  <text x="38" y="1180"><tspan font-weight="bold" fill="#243A5E">6 Inferência:</tspan> FraudPredictor (validação → features → probabilidade → regra) atende a CLI e o Flask, empacotado no Docker (fraude-api :5001).</text>
+  <text x="38" y="1204"><tspan font-weight="bold" fill="#CA5010">7 Operação:</tspan> o Airflow agenda dvc repro estágio a estágio + registro + build; monitor mede drift (PSI/K-S) e lotes x SLA; pytest e CI garantem a qualidade.</text>
+</g>
+</svg>

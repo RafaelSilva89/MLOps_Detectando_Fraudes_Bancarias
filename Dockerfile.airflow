@@ -1,0 +1,29 @@
+# ==============================================================================
+# Dockerfile.airflow: imagem do Apache Airflow com o projeto dentro (orquestração).
+#
+# Por que conteinerizar o Airflow? Ele não roda nativamente no Windows e exige banco de dados,
+# scheduler e servidor web. Com o docker-compose, tudo sobe com um comando.
+#
+# O projeto fica num ambiente Python SEPARADO (/opt/project-venv): as bibliotecas do projeto
+# (pandas 3, MLflow 3...) não podem conflitar com as que o próprio Airflow precisa.
+# ==============================================================================
+FROM apache/airflow:2.10.5-python3.12
+
+USER root
+# docker CLI (para a tarefa build_app_image falar com o Docker-in-Docker) e libgomp1 (XGBoost/LightGBM)
+RUN apt-get update && apt-get install -y --no-install-recommends docker.io libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+RUN python -m venv /opt/project-venv && chown -R airflow: /opt/project-venv
+
+COPY --chown=airflow:root . /home/airflow/fraud_detection
+USER airflow
+WORKDIR /home/airflow/fraud_detection
+
+# Instala o projeto no ambiente separado (modo editável: lê src/ desta pasta)
+RUN /opt/project-venv/bin/pip install --no-cache-dir -e .
+# DVC sem Git dentro do container (o versionamento com Git fica na sua máquina)
+RUN /opt/project-venv/bin/python -m dvc init --no-scm -f -q \
+    && /opt/project-venv/bin/python -m dvc config core.autostage false
+
+ENV PROJECT_PYTHON=/opt/project-venv/bin/python \
+    MLFLOW_TRACKING_URI=sqlite:////home/airflow/fraud_detection/mlflow.db

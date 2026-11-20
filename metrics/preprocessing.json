@@ -1,0 +1,21 @@
+{
+  "duplicatas_removidas": 1081,
+  "linhas_sem_duplicatas": 283726,
+  "splits": {
+    "train": {
+      "transacoes": 170235,
+      "fraudes": 284,
+      "taxa_fraude": 0.001668
+    },
+    "val": {
+      "transacoes": 56745,
+      "fraudes": 94,
+      "taxa_fraude": 0.001657
+    },
+    "test": {
+      "transacoes": 56746,
+      "fraudes": 95,
+      "taxa_fraude": 0.001674
+    }
+  }
+}
