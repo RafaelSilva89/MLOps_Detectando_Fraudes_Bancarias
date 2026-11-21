@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="790" viewBox="0 0 1100 790" role="img" aria-labelledby="t d" font-family="Segoe UI, Arial, Helvetica, sans-serif">
+<title id="t">Fluxo de processamento dos dados · detecção de fraudes</title><desc id="d">Do transferencias.zip (284.807 linhas, 31 colunas) aos arquivos processados: load_data, validate_data (bloqueia se falhar; registra 1.081 duplicatas e taxa de fraude de 0,17%), preprocess_data (remove 1.081 duplicatas, 19 eram fraudes, restando 283.726 transações e 473 fraudes; cria id_transacao; separa estratificado em treino 60% = 170.235 com 284 fraudes, validação 20% = 56.745 com 94 fraudes, teste 20% = 56.746 com 95 fraudes) e engineer_features (hora_do_dia e remoção do Timestamp).</desc><defs>
+<marker id="aBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0078D4"/></marker>
+<marker id="aGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#107C10"/></marker>
+<marker id="aPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8661C5"/></marker>
+<marker id="aOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#CA5010"/></marker>
+<marker id="aRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#C50F1F"/></marker>
+<marker id="aDark" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#243A5E"/></marker>
+</defs>
+<rect x="0" y="0" width="1100" height="790" rx="0" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="0"/>
+<text x="550" y="32" font-size="20" fill="#243A5E" font-weight="bold" text-anchor="middle">Fluxo de processamento dos dados</text>
+<text x="550" y="54" font-size="12.5" fill="#7A7A7A" font-weight="normal" text-anchor="middle">estágios 1 a 4 do dvc.yaml · cada arquivo é a saída de um estágio e a entrada do próximo</text>
+<rect x="350" y="70" width="400" height="44" rx="6" fill="#F3F9FD" stroke="#0078D4" stroke-width="1.4" stroke-dasharray="6,4"/>
+<text x="550.0" y="89" font-size="12.5" fill="#0078D4" font-weight="bold" text-anchor="middle" font-family="Consolas, 'Courier New', monospace">data/external/transferencias.zip</text>
+<text x="550.0" y="106" font-size="11" fill="#7A7A7A" font-weight="normal" text-anchor="middle">284.807 transações × 31 colunas (versionado pelo DVC)</text>
+<path d="M550.0,114 L550.0,132" fill="none" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<rect x="260" y="134" width="580" height="46" rx="6" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.6"/>
+<rect x="260" y="134" width="5" height="46" rx="2" fill="#0078D4" stroke="#0078D4" stroke-width="0"/>
+<text x="273" y="153" font-size="13" fill="#243A5E" font-weight="bold" text-anchor="start">1 · load_data</text>
+<text x="273" y="172" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">lê o CSV de dentro do zip, sem alterar nada</text>
+<path d="M550.0,180 L550.0,198" fill="none" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<rect x="350" y="200" width="400" height="44" rx="6" fill="#F3F9FD" stroke="#0078D4" stroke-width="1.4" stroke-dasharray="6,4"/>
+<text x="550.0" y="219" font-size="12.5" fill="#0078D4" font-weight="bold" text-anchor="middle" font-family="Consolas, 'Courier New', monospace">data/raw/raw.csv</text>
+<text x="550.0" y="236" font-size="11" fill="#7A7A7A" font-weight="normal" text-anchor="middle">a cópia intacta de onde tudo parte</text>
+<path d="M550.0,244 L550.0,262" fill="none" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<rect x="260" y="264" width="580" height="96" rx="6" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.6"/>
+<rect x="260" y="264" width="5" height="96" rx="2" fill="#0078D4" stroke="#0078D4" stroke-width="0"/>
+<text x="273" y="283" font-size="13" fill="#243A5E" font-weight="bold" text-anchor="start">2 · validate_data</text>
+<text x="273" y="302" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">31 colunas? todas numéricas? sem nulos nem infinitos?</text>
+<text x="273" y="318" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">Timestamp e valor ≥ 0? alvo só 0/1, com as duas classes?</text>
+<text x="273" y="334" font-size="11.5" fill="#7A7A7A" font-weight="normal" text-anchor="start">registra também: 1.081 duplicatas · taxa de fraude 0,17%</text>
+<rect x="880" y="282" width="200" height="60" rx="6" fill="#FDE7E9" stroke="#C50F1F" stroke-width="1.6"/>
+<text x="980" y="306" font-size="12" fill="#C50F1F" font-weight="bold" text-anchor="middle">alguma checagem falhou?</text>
+<text x="980" y="326" font-size="12" fill="#C50F1F" font-weight="normal" text-anchor="middle">ERRO: o pipeline para</text>
+<path d="M840,312 L878,312" fill="none" stroke="#C50F1F" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#aRed)"/>
+<text x="980" y="360" font-size="10.5" fill="#7A7A7A" font-weight="normal" text-anchor="middle" font-family="Consolas, 'Courier New', monospace">metrics/data_validation.json</text>
+<path d="M550.0,360 L550.0,382" fill="none" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<rect x="260" y="384" width="580" height="82" rx="6" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.6"/>
+<rect x="260" y="384" width="5" height="82" rx="2" fill="#0078D4" stroke="#0078D4" stroke-width="0"/>
+<text x="273" y="403" font-size="13" fill="#243A5E" font-weight="bold" text-anchor="start">3 · preprocess_data</text>
+<text x="273" y="422" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">remove 1.081 duplicatas (19 eram fraudes) → 283.726 transações, 473 fraudes</text>
+<text x="273" y="438" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">cria id_transacao e separa ESTRATIFICADO pelo alvo (semente 42):</text>
+<rect x="60" y="486" width="582.0" height="62" rx="5" fill="#DEECF9" stroke="#0078D4" stroke-width="1.6"/>
+<text x="351.0" y="506" font-size="13" fill="#0078D4" font-weight="bold" text-anchor="middle">treino 60%</text>
+<text x="351.0" y="523" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="middle">170.235 · 284 fraudes</text>
+<text x="351.0" y="539" font-size="11" fill="#0078D4" font-weight="normal" text-anchor="middle">treina os modelos</text>
+<rect x="648.0" y="486" width="190.0" height="62" rx="5" fill="#FFF4CE" stroke="#986F0B" stroke-width="1.6"/>
+<text x="743.0" y="506" font-size="13" fill="#986F0B" font-weight="bold" text-anchor="middle">validação 20%</text>
+<text x="743.0" y="523" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="middle">56.745 · 94 fraudes</text>
+<text x="743.0" y="539" font-size="11" fill="#986F0B" font-weight="normal" text-anchor="middle">escolhe o limiar</text>
+<rect x="844.0" y="486" width="190.0" height="62" rx="5" fill="#FDE7E9" stroke="#C50F1F" stroke-width="1.6"/>
+<text x="939.0" y="506" font-size="13" fill="#C50F1F" font-weight="bold" text-anchor="middle">teste 20%</text>
+<text x="939.0" y="523" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="middle">56.746 · 95 fraudes</text>
+<text x="939.0" y="539" font-size="11" fill="#C50F1F" font-weight="normal" text-anchor="middle">trancado até o estágio 7</text>
+<path d="M550.0,466 L550.0,484" fill="none" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<path d="M550.0,548 L550.0,570" fill="none" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<rect x="350" y="572" width="400" height="44" rx="6" fill="#F3F9FD" stroke="#0078D4" stroke-width="1.4" stroke-dasharray="6,4"/>
+<text x="550.0" y="591" font-size="12.5" fill="#0078D4" font-weight="bold" text-anchor="middle" font-family="Consolas, 'Courier New', monospace">data/preprocessed/{train,val,test}.csv</text>
+<text x="550.0" y="608" font-size="11" fill="#7A7A7A" font-weight="normal" text-anchor="middle">+ train_val_ids.csv (ordem para a validação cruzada)</text>
+<path d="M550.0,616 L550.0,634" fill="none" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<rect x="260" y="636" width="580" height="64" rx="6" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.6"/>
+<rect x="260" y="636" width="5" height="64" rx="2" fill="#0078D4" stroke="#0078D4" stroke-width="0"/>
+<text x="273" y="655" font-size="13" fill="#243A5E" font-weight="bold" text-anchor="start">4 · engineer_features</text>
+<text x="273" y="674" font-size="11" fill="#3B3B3B" font-weight="normal" text-anchor="start" font-family="Consolas, 'Courier New', monospace">hora_do_dia = (Timestamp mod 86.400) / 3.600</text>
+<text x="273" y="690" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">remove o Timestamp (posição na janela de 48 h, que nunca se repete)</text>
+<path d="M550.0,700 L550.0,718" fill="none" stroke="#0078D4" stroke-width="2" marker-end="url(#aBlue)"/>
+<rect x="350" y="720" width="400" height="44" rx="6" fill="#F3F9FD" stroke="#0078D4" stroke-width="1.4" stroke-dasharray="6,4"/>
+<text x="550.0" y="739" font-size="12.5" fill="#0078D4" font-weight="bold" text-anchor="middle" font-family="Consolas, 'Courier New', monospace">data/processed/{train,val,test}.csv</text>
+<text x="550.0" y="756" font-size="11" fill="#7A7A7A" font-weight="normal" text-anchor="middle">28 componentes + hist_saldo + hora_do_dia + Target</text>
+<rect x="40" y="134" width="190" height="230" rx="6" fill="#F7F7F7" stroke="#7A7A7A" stroke-width="1.4" stroke-dasharray="6,4"/>
+<text x="52" y="156" font-size="12.5" fill="#3B3B3B" font-weight="bold" text-anchor="start">Por que nessa ordem?</text>
+<text x="52" y="178" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">Validar ANTES de tudo:</text>
+<text x="52" y="194" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">dado quebrado não chega</text>
+<text x="52" y="210" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">ao modelo.</text>
+<text x="52" y="226" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start"></text>
+<text x="52" y="242" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">Duplicatas saem ANTES</text>
+<text x="52" y="258" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">do split: senão uma cópia</text>
+<text x="52" y="274" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">cai no treino e a outra</text>
+<text x="52" y="290" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">no teste (vazamento).</text>
+<text x="52" y="306" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start"></text>
+<text x="52" y="322" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">O teste só é lido no</text>
+<text x="52" y="338" font-size="11.5" fill="#3B3B3B" font-weight="normal" text-anchor="start">estágio 7 (evaluate).</text>
+</svg>

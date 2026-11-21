@@ -85,32 +85,9 @@ O modelo devolve uma **probabilidade de fraude**. Uma **regra de decisão**, esc
 
 ## 4. Arquitetura geral
 
-O diagrama completo está em [`docs/arquitetura.svg`](docs/arquitetura.svg). Em resumo:
+![Arquitetura geral: params.yaml, os 8 estágios do DVC, a run do MLflow, o Model Registry, o FraudPredictor servindo CLI, Flask e Docker, e Airflow, Git + DVC e testes como apoio](docs/arquitetura_geral.svg)
 
-```
-                        params.yaml (todos os parâmetros)
-                                     │
-data/external/transferencias.zip ──► 1 load_data ──► 2 validate_data ──► 3 preprocess_data ──► 4 engineer_features
-      (versionado pelo DVC)          data/raw/         (para se falhar)    data/preprocessed/     data/processed/
-                                                                                                     │
-        ┌────────────────────────────────────────────────────────────────────────────────────────────┘
-        ▼
-    5 train ──────────► 6 decision_policy ──────► 7 evaluate ───────────► 8 monitor
-    models/*.joblib     artifacts/decision_       metrics/evaluation.json  metrics/monitoring.json
-                        policy.json               models/model_card.json
-        │                     │                         │                       │
-        └─────────────────────┴──── MLflow: 1 run por pipeline ─────────────────┘
-                                             │
-                                  register_model.py ──► Model Registry: fraude_xgboost @champion
-                                                                     │
-          FraudPredictor (validar → features → probabilidade → regra) ◄──┘ (ou models/ local)
-                 │                        │                          │
-           CLI predict.py         App Flask (/predict, /upload)   Docker (gunicorn :5001)
-
-    Airflow (dags/): dvc repro <cada estágio> → register_model → docker build      [orquestração]
-    Git + DVC: versionam código, parâmetros, dados e modelos                       [reprodutibilidade]
-    pytest + GitHub Actions: 33 testes unitários + 6 de integração                 [qualidade]
-```
+Visão resumida. O diagrama completo, com todas as pastas e arquivos, está em [`docs/arquitetura.svg`](docs/arquitetura.svg).
 
 **Três ideias organizam tudo:**
 1. **Um estágio = uma responsabilidade = um módulo.** Cada estágio lê do disco o que o anterior gravou e grava o que o próximo vai ler. Dá para rodar, testar e entender cada um isoladamente.
@@ -223,26 +200,7 @@ if __name__ == "__main__":                         # python -m src.<etapa>.<modu
 
 ## 7. Fluxo de processamento dos dados
 
-```
-transferencias.zip (284.807 × 31)
-   │ 1 load_data: lê o CSV de dentro do zip, sem alterar nada
-   ▼
-data/raw/raw.csv
-   │ 2 validate_data: 31 colunas? numéricas? sem nulos/infinitos? Timestamp e valor >= 0?
-   │                  alvo só 0/1 e com as duas classes?  → se não: ERRO e o pipeline para
-   │                  (registra também: 1.081 duplicatas, taxa de fraude 0,17%)
-   ▼
-   │ 3 preprocess_data: remove 1.081 duplicatas (19 eram fraudes) → 283.726 transações, 473 fraudes
-   │                    cria id_transacao; separa ESTRATIFICADO:
-   │                       teste      20% = 56.746 (95 fraudes)  ← trancado até o estágio 7
-   │                       validação  20% = 56.745 (94 fraudes)  ← escolhe o limiar
-   │                       treino     60% = 170.235 (284 fraudes)
-   ▼
-data/preprocessed/{train,val,test}.csv
-   │ 4 engineer_features: hora_do_dia = (Timestamp mod 86.400) / 3.600; remove Timestamp
-   ▼
-data/processed/{train,val,test}.csv  (28 componentes + hist_saldo + hora_do_dia + Target)
-```
+![Fluxo dos dados: transferencias.zip (284.807 × 31) → load_data → raw.csv → validate_data (para se falhar) → preprocess_data (remove 1.081 duplicatas; separa estratificado em treino 170.235, validação 56.745 e teste 56.746) → engineer_features (hora_do_dia, sem Timestamp) → data/processed](docs/fluxo_dados.svg)
 
 **Onde o vazamento de dados (data leakage) é evitado:**
 
